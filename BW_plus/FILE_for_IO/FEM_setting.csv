@@ -1,0 +1,26 @@
+Material, mater, 1
+Wavelength, É…, 850.000000,nm
+Fiber length, L, 20.000000,m
+Core radius, A, 3.500000,É m
+Analysis region in radial axis, AA,300.000000,É m
+Index exponent, g, 100000.000000
+Refractive index at the core center, n1,3.520000
+Refractive index in the cladding, n0,3.500000
+Relative refractive index, É¢,0.005666
+Numerical aperture, NA, 0.374700
+Step size of the elements, dr, 20.000000, nm
+Step size of the pulse waveform, Tv, 1.000000, ps
+Minimum evaluated frequency,fminx,0.000000e+00,GHz
+Maximum evaluated frequency,fmax,3.000000e+01,GHz
+Step size of evaluated frequency,dfrq,6.000000e-01,GHz
+Step size of propagation constant, dÉ¿,147.839654
+Partition number of propagation constant, NÉ¿,1000
+Partition number of fiber core radius, N,175
+Partition number of fiber cladding, Nclad,14825
+Maximum allowable error for convergence solution vector, eps1,0.000000
+Maximum allowable error of zero eigen value, eps2,0.000010
+Maximum number of iterations in inverse power method, jmax,10000
+Total number of LP modes (WKB), Nwkb,11
+Total number of LP modes, NLP,13
+Total number of LP modes with 0th m-order, NLP0,3
+Total number of modes, Ntotal,46

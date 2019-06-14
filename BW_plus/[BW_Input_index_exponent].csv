@@ -1,0 +1,5 @@
+Measurement mode about index exponent (0_single_1_sweep),SingleSweep,0
+(gMeasure=1) Minimum index exponent,gmin,1.8
+(gMeasure=1) Maximum index exponent,gmax,3
+(gMeasure=1) Index exponent resolution,dg,0.05
+(Measure mode about lateral offset (0_single_1_lateral-offset-dependence)),rMeasure,0

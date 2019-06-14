@@ -1,0 +1,15 @@
+fprintf (type: write ),ƒfƒBƒŒƒNƒgƒŠ‚É“ü‚ê‚é‚©,(type: append/update ),fprintf (type: read ),•â‘«
+BW_setting.csv,Z,|,,
+BW_profile.csv,Z,|,,
+FEM_result.csv,Z,|,,
+Hmn_result.csv,|,|,,”g’·‚Ì‚İ‚ğo—Í‚·‚é‚Ì‚Åg‚ğ•Ï‚¦‚é‚½‚Ñ‚Éã‘‚«‚µ‚Ä—Ç‚¢
+CPE_Hmatrix.csv,Z,|,,
+CPE_Impulse-responce.csv,Z,|,,
+CPE_Output-pulse-waveform.csv,¢‚Æ‚è‚ ‚¦‚¸‚Â‚­‚Á‚¿‚á‚¦,|,,
+CPE_Mode-power-distribution.csv,Z,,,
+CPE_Group-power-distribution.csv,,,,
+CPE_Frequency-respnse.csv,,,,
+BW_result.csv,,,,
+BW_Impulse-responce.csv,,,,
+BW_Output-pulse-waveform.csv,,,,
+BW_source-spectrum.csv,,,,

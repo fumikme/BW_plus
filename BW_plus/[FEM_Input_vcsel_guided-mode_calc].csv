@@ -1,0 +1,29 @@
+Core radius (É m),A,3.5
+Analysis region (É m),AA,300
+Profile (0:power law profile_1: measured profile),profile,0
+"Index exponent (if you wanna use step index profile you should enter ""1.7E+100"" (maximum is 1.7E+300))",g,1.00E+05
+Refractive index at the core center,n1,3.52
+Refractive index in cladding,n0,3.5
+launching condition (0:OFL 1:SMLtoMMF 2:MMLtoMMF or MMFtoMMF 3: Dependence of offset for MMLtoMMF or MMFtoMMF),launch,3
+Coupling type (0:VCSEL2Fiber 1:Fiber2Fiber) (for the case of launch == 2 or 3),couple,1
+Offset (um) (If launch==3 this parameter is neglected),r0,0
+Range for offset,OFFrange,20
+Resolution for offset,OFFres,1
+Input beam radius from VCSEL (um),Avin,10
+Gaussian Beam radius (É m) for the case of launch == 1,w0,1
+Spatial step size (nm),dr,20
+Overlap integral step size (nm),dx,100
+Material (0:PMMA 1:CYTOP 2:Silica 3:PTCEMA),mater,1
+Wavelength (nm),lamda,850
+Fiber length (m),L,20
+Temporal step size (ps),Tv,1
+Minimum evaluated frequency (GHz),fmin,0
+Maximum evaluated frequency (GHz),fmax,30
+Division number of evaluated frequency,Nf,50
+Core radius for normalization,aa,1
+Partition number of propagation constants,Nbeta,1000
+Maximum allowable error for convergence solution vector,eps1,0.000000001
+Maximum allowable error of zero eigen value,eps2,0.00001
+Maximum number of iteration in inverse power method,jmax,10000
+Effective refractive index in oxide region around VCSEL cavity (hasnÅft be used),noxi,3.5
+Effective refractive index in VCSEL cavity (hasnÅft be used),ncav,3.52
