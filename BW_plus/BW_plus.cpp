@@ -86,7 +86,7 @@ void inputFEM();
 //!? 発振モードの選定
 void selectOsciMode(int Nvmode);	//TODO m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする		//char *directory
 //!? -3dB帯域幅計算関数
-double sweep_g(int SingleSweep, double ginput, double r);
+double sweep_g(int SingleSweep, double ginput, double r, int Nvmode);
 
 /* 1. パラメータの定義 */
 // m: モード次数( TE&TM ~ 1, EH ~ n+1, HE ~ n-1), l: 動径方向モード次数, n: 方位角モード次数
@@ -153,7 +153,7 @@ int main ( void ) {
 
 	//TODO ここにオフセット量をパラメータとして 関数sweep_g に代入
 	if (SingleSweep == 0){
-		bw = sweep_g(SingleSweep, ginput, r);  //(返り値は-3dB帯域幅)
+		bw = sweep_g(SingleSweep, ginput, r, Nvmode);  //(返り値は-3dB帯域幅)
 	}
 	
 
@@ -164,7 +164,7 @@ int main ( void ) {
 				fprintf(fgvsBW, "index exponent g, -3dB bandwidth\n");
 				for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
 					ginput = gmin + dg * gcnt;
-					bw = sweep_g(SingleSweep, ginput, r);  //(返り値は-3dB帯域幅)
+					bw = sweep_g(SingleSweep, ginput, r, Nvmode);  //(返り値は-3dB帯域幅)
 					fprintf(fgvsBW, "%.2lf, %lf\n", ginput, bw);
 	}}}}
 	fclose(fptr);
@@ -175,7 +175,7 @@ int main ( void ) {
 
 
 //! 以下サブ関数     ////////////////////////////////////////////////////////////
-double sweep_g(int SingleSweep, double ginput, double r){
+double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 	//! //////////  宣言  //////////
 	FILE  *fp,*fp2, *fp3, *fp4, *fp5, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4;
 	int    i, j, l, m, n, x, y, nr, jmax, count = 0;
@@ -191,6 +191,7 @@ double sweep_g(int SingleSweep, double ginput, double r){
 	double **Amin, **Amplu, **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
 	int    *model, *modem,*modep, *pdeg, *kim, *Pnum;
 	double V0, nv0, nv1, gsingle;	gsingle = 0;
+	double** OSmat;
 
 	//! ////////////////////////////////////////////////////////////
 	//! //////////            1-1. 初期設定                ///////////
@@ -280,13 +281,31 @@ double sweep_g(int SingleSweep, double ginput, double r){
 	 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
 	 fclose (fr5);
 	 // 入射光スペクトル
+	 
 	 OSin = drealvector ( 0, Nfp );	init_realvector ( OSin, 0, Nfp );
 	 Wl = drealvector ( 0, Nl+1 );	init_realvector ( Wl, 0, Nl+1 );
-	
-	 if ( (fr8 = fopen ("[OS_Input_source_spectrum].csv", "r") ) != NULL ) {
-		 for ( i = 0; i <= Nfp; i++ ) { fscanf ( fr8, "%lf\n", &OSin[i] ); }}//, %lf	&Wl[i],
-	 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
-	 fclose(fr8);
+	 OSmat = dmatrix(0, Nfp, 0, Nvmode);	init_realvector(OSmat, 0, Nfp, 0, Nvmode);
+	 //入射スペクトルの読み込み
+	 if(launch == 0 || launch == 1){
+		 Nvmode = 1;
+		 if ((fr8 = fopen("[OS_Input_source_spectrum].csv", "r")) != NULL) {
+			 for (i = 0; i <= Nfp; i++) {
+				 for (int j = 0, j < Nvmode; j++) {
+					 fscanf(fr8, "%lf\n", &OSmat[i][j]);
+				 }
+			 }
+		 }
+		 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
+		 fclose(fr8);
+	 }
+	 if (launch == 2) {
+		 if ( (fr8 = fopen ("[OS_VCSEL_input_source_spectrum].csv", "r") ) != NULL ) {
+			 for ( i = 0; i <= Nfp; i++ ) { 
+				 for (int j = 0, j < Nvmode; j++) {
+					 fscanf ( fr8, "%lf\n", &OSmat[i] ); }}}//, %lf	&Wl[i],
+		 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
+		 fclose(fr8);
+	 }
 	 // 入射光スペクトルにおける発振モードの判別波長を入力
 	 if ( (fr10 = fopen ("[OS_Wavelength_discrimination].csv", "r") ) != NULL ) {	//TODO WDin[ ]は境界波長を示す
 		 char s1[128], s2[128];
