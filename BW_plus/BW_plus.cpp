@@ -284,24 +284,21 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 	 
 	 OSin = drealvector ( 0, Nfp );	init_realvector ( OSin, 0, Nfp );
 	 Wl = drealvector ( 0, Nl+1 );	init_realvector ( Wl, 0, Nl+1 );
-	 OSmat = dmatrix(0, Nfp, 0, Nvmode);	init_realvector(OSmat, 0, Nfp, 0, Nvmode);
+	 OSmat = dmatrix(0, Nfp, 0, Nvmode);	init_dmatrix(OSmat, 0, Nfp, 0, Nvmode);
 	 //入射スペクトルの読み込み
-	 if(launch == 0 || launch == 1){
+	 if (launch == 0 || launch == 1) {
 		 Nvmode = 1;
 		 if ((fr8 = fopen("[OS_Input_source_spectrum].csv", "r")) != NULL) {
 			 for (i = 0; i <= Nfp; i++) {
-				 for (int j = 0, j < Nvmode; j++) {
-					 fscanf(fr8, "%lf\n", &OSmat[i][j]);
-				 }
-			 }
-		 }
-		 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
+				 for (j = 0; j < Nvmode; j++) {
+					 fscanf(fr8, "%lf\n", &OSmat[i][j]);	}}}
+		 else { printf(" U cannot open the file !\n"); exit(EXIT_FAILURE); }
 		 fclose(fr8);
 	 }
 	 if (launch == 2) {
 		 if ( (fr8 = fopen ("[OS_VCSEL_input_source_spectrum].csv", "r") ) != NULL ) {
 			 for ( i = 0; i <= Nfp; i++ ) { 
-				 for (int j = 0, j < Nvmode; j++) {
+				 for (j = 0; j < Nvmode; j++) {
 					 fscanf ( fr8, "%lf\n", &OSmat[i] ); }}}//, %lf	&Wl[i],
 		 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
 		 fclose(fr8);
@@ -398,10 +395,6 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 
 	 if (launch != 2) {
 		 goto SkipInputFEM;	 }
-
-	
-
-
 
  SkipInputFEM:
 
@@ -786,7 +779,7 @@ next:
 							//TODO For measuring minEMBc   //////////////////////////////////////////////
 				char trash[65536];
 				int min, lin;
-				double tauin, betain, betaoverk, Rinfin, eigin;
+
 				FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fr, *fpulse, *fopulse, *fmpd;
 				char   fppath[128], fp2path[128], fp3path[128], fp4path[128], fp5path[128], fp6path[128], fp7path[128];
 				char   fp8path[128], frpath[128], fpulsepath[128], fopulsepath[128], fmpdpath[128];
@@ -809,8 +802,9 @@ next:
 				double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
 				double win, xx1, xx2, rr1, rr2;
 				int    *modem, *modemin, *model, *modelin;
-				int    Nvin, couple, min, lin, nrr1, nrr2, max;
+				int    Nvin, couple, nrr1, nrr2, max;
 				int    OFFres, OFFrange;
+				double betaoverk, Adash, cef_odod, cef_evod, cef_odev, cef_evev;
 							
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
 					fgets(trash, 65536, fp5);
