@@ -88,7 +88,6 @@ void selectOsciMode(int Nvmode);	//TODO m, l, tau, beta, betaoverk, Rinf, eig, I
 //!? -3dB帯域幅計算関数
 double sweep_g(int SingleSweep, double ginput, double r);
 
-
 /* 1. パラメータの定義 */
 // m: モード次数( TE&TM ~ 1, EH ~ n+1, HE ~ n-1), l: 動径方向モード次数, n: 方位角モード次数
 // N: 動径座標rのコア内分割数, Nbeta: 伝搬定数の分割数, mater: 材料ID, 
@@ -762,38 +761,38 @@ next:
 					//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 					}}}
 
-			//TODO For measuring minEMBc   //////////////////////////////////////////////
-			char trash[65536];
-			int min, lin;
-			double tauin, betain, betaoverk, Rinfin, eigin;
-			FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fr, *fpulse, *fopulse, *fmpd;
-			char   fppath[128], fp2path[128], fp3path[128], fp4path[128], fp5path[128], fp6path[128], fp7path[128];
-			char   fp8path[128], frpath[128], fpulsepath[128], fopulsepath[128], fmpdpath[128];
-			          fppath[0]   =	 fp2path[0] = fp3path[0] = fp4path[0] = fp5path[0] = fp6path[0] = fp7path[0] =
-			          fp8path[0]  =  frpath[0] = fpulsepath[0] = fopulsepath[0] = fmpdpath[0] = '\0' ;
-			int    myu, x, y, i, j, jmax, count;
-			int    m, l, NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, Ntmin, Ntmax, Nf, launch;
-			int    Nxy, xmax, LT, xL;
-			double lamda, k, omega, A, AA, g, n0, n1, dr, L, Tv;
-			double r0, w0, dx, dy;
-			double delta, NA, aa, v, w, D;
-			double tau, beta, dbeta, bb, eps1, eps2, sum, Rinf, de, df, eig;
-			double taumin, taumax, fmin, fmax, dfrq, Hw, ReHw, ImHw, bw;					//	int    nr;
-			double yy, Rxy, Rinxy;
-			double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod;
-			double ncav, noxi, Avin;
-			double *GI, *pulse, *opulse, *q, *qg, *R, *R2, *Rb, *a, *b, *ML, *MD, *Mtau, *P, *M, *Mbeta, *MPD;
-			double *Mbetain;
-			double **Rlp, **MPD2d, **Rinlp;;
-			double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
-			double win, xx1, xx2, rr1, rr2;
-			int    *modem, *modemin, *model, *modelin;
-			int    Nvin, couple, min, lin, nrr1, nrr2, max;
-			int    OFFres, OFFrange;
-
 
 			if (launch == 2) {
 				//! 貼り付けただけ部分はここから   ////////////////////////////////////////		
+							//TODO For measuring minEMBc   //////////////////////////////////////////////
+				char trash[65536];
+				int min, lin;
+				double tauin, betain, betaoverk, Rinfin, eigin;
+				FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fr, *fpulse, *fopulse, *fmpd;
+				char   fppath[128], fp2path[128], fp3path[128], fp4path[128], fp5path[128], fp6path[128], fp7path[128];
+				char   fp8path[128], frpath[128], fpulsepath[128], fopulsepath[128], fmpdpath[128];
+						  fppath[0]   =	 fp2path[0] = fp3path[0] = fp4path[0] = fp5path[0] = fp6path[0] = fp7path[0] =
+						  fp8path[0]  =  frpath[0] = fpulsepath[0] = fopulsepath[0] = fmpdpath[0] = '\0' ;
+				int    myu, x, y, i, j, jmax, count;
+				int    m, l, NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, Ntmin, Ntmax, Nf, launch;
+				int    Nxy, xmax, LT, xL;
+				double lamda, k, omega, A, AA, g, n0, n1, dr, L, Tv;
+				double r0, w0, dx, dy;
+				double delta, NA, aa, v, w, D;
+				double tau, beta, dbeta, bb, eps1, eps2, sum, Rinf, de, df, eig;
+				double taumin, taumax, fmin, fmax, dfrq, Hw, ReHw, ImHw, bw;					//	int    nr;
+				double yy, Rxy, Rinxy;
+				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod;
+				double ncav, noxi, Avin;
+				double *GI, *pulse, *opulse, *q, *qg, *R, *R2, *Rb, *a, *b, *ML, *MD, *Mtau, *P, *M, *Mbeta, *MPD;
+				double *Mbetain;
+				double **Rlp, **MPD2d, **Rinlp;;
+				double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
+				double win, xx1, xx2, rr1, rr2;
+				int    *modem, *modemin, *model, *modelin;
+				int    Nvin, couple, min, lin, nrr1, nrr2, max;
+				int    OFFres, OFFrange;
+							
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
 					fgets(trash, 65536, fp5);
 
