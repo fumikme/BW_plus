@@ -1,10 +1,11 @@
-#pragma warning( disable: 0266 )	//!? マネージヒープ
+#pragma warning( disable: 0266 )	//!? 「fprintfがあいまいです」を回避
 #pragma warning( disable: 4101 )	//!? 使用していない変数
 #pragma warning( disable: 4477 )	//!? 初期化されていない変数に対してfscanfで値を代入
 #pragma warning( disable: 4700 )	//!? 初期化されていない配列に対してfscanfで値を代入
 #pragma warning( disable: 4996 )	//!? fscanf関連して、バッファオーバーランを起こすなどの脆弱性の恐れ
 #pragma warning( disable: 6001 )	//!? 初期化されていないメモリが使用されています
 #pragma warning( disable: 6031 )	//!? fscanfの戻り値を無視
+#pragma warning( disable: 6054 )	//!? strcmp関数に関する警告を無視
 #pragma warning( disable: 6385 )	
 #pragma warning( disable: 6386 )	
 #pragma warning( disable: 6262 )	
@@ -86,9 +87,9 @@ void mkdir(char dirname[]);
 //!? FEMによる，VCSEL発振モードの電磁界分布の算出
 void inputFEM();
 //!? 発振モードの選定
-void selectOsciMode(int Nvmode);	//TODO m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする		//char *directory
+void selectOsciMode(int Nvmode, double Vradius);	//TODO m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする		//char *directory
 //!? -3dB帯域幅計算関数
-double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r);
+double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, double Vradius);
 
 /* 1. パラメータの定義 */
 // m: モード次数( TE&TM ~ 1, EH ~ n+1, HE ~ n-1), l: 動径方向モード次数, n: 方位角モード次数
@@ -131,10 +132,10 @@ int main ( void ) {
 	double gmin, gmax, dg, ginput, bw;	 ginput = bw =0;
 	double dtrsh; //読み込み用
 	double r = 0;
-	// int Vradius = 3.5;
-	// int Vcore = 3.52;
-	// int Vclad = 3.5;
-	// int Vindexexp = 1.0e4;
+	double Vradius = 3.5;
+	// double Vcore = 3.52;
+	// double Vclad = 3.5;
+	// double Vindexexp = 1.0e4;
 	
 	inputFEM();		//!? 上記のVradiusなどを変数として使用してもよいが不必要なので今後要検討
 	//sprintf(directory, "%s", inputFEM);
@@ -143,21 +144,25 @@ int main ( void ) {
 	int Nvmode;		double OffRes, OffRan;	
 	if ((fp = fopen("[BW_Input].csv", "r")) != NULL) {
 		char s1[128], s2[128];	int i = 0;
-		for (; ; ) {
+		for (int cnt=0 ; ; cnt++ ) {
 			fscanf(fp, "%[^,], %[^,], ", s1, s2);
-			if (s2 == "Nvmode") { fscanf(fp, "%d\n", &Nvmode); i += 1; }
-			else if (s2 == "DMD") { fscanf(fp, "%d\n", &DMD); i += 1; }
-			else if (s2 == "OffRes") { fscanf(fp, "%lf\n", &OffRes); i += 1; }
-			else if (s2 == "OffRan") { fscanf(fp, "%lf\n", &OffRan); i += 1; }
-			else { fscanf(fp, "%lfn", &dtrsh); i += 1; }
-			if (i == 4) { break; }		}}
+			if (strcmp(s2,"Nvmode")==0) { 
+				fscanf(fp, "%d\n", &Nvmode);	i += 1; }
+			else if (strcmp(s2, "DMD")==0) {
+				fscanf(fp, "%d\n", &DMD); 		i += 1; }
+			else if (strcmp(s2, "OffRes")==0) {
+				fscanf(fp, "%lf\n", &OffRes);	i += 1; }
+			else if (strcmp(s2, "OffRan")==0) {
+				fscanf(fp, "%lf\n", &OffRan);	i += 1; }
+			else { fscanf(fp, "%lfn", &dtrsh); }
+			if (i == 4 || cnt > 200) { break; }		}}
 	else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE ); }
 	fclose(fp);
 	printf("Nvmode: %d\n", Nvmode);
 	printf("OffRes: %.2lfum\n", OffRes);
 	printf("OffRan: %.2lfum\n", OffRan);
-	
-	selectOsciMode(Nvmode);		//!? m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする
+
+	selectOsciMode(Nvmode, Vradius);		//!? m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする
 	if ( (fptr = fopen("[BW_Input_index_exponent].csv","r")) != NULL ) {
 		char ss1 [128], ss2 [128];
 		 fscanf (fptr, "%[^,], %[^,], %d\n", ss1, ss2, &SingleSweep);
@@ -172,12 +177,12 @@ int main ( void ) {
 	//TODO ここにオフセット量をパラメータとして 関数sweep_g に代入
 	if (SingleSweep == 0){
 		if (DMD == 0){
-			bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);		} //(返り値は-3dB帯域幅)
+			bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r, Vradius);		} //(返り値は-3dB帯域幅)
 		if (DMD == 1) {
 			if ((frvsBW = fopen("BW_EMBc.csv", "r")) != NULL) {
 				fprintf(frvsBW, "Offset r [um], -3dB bandwidth [GHz]\n");
 				for (r = 0; r <= OffRan; r += OffRes) {
-					bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);	
+					bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r, Vradius);
 					fprintf(frvsBW, "%.2lf, %lf\n", r, bw);		}}}}  //(返り値は-3dB帯域幅)
 	
 
@@ -189,14 +194,14 @@ int main ( void ) {
 					fprintf(fgvsBW, "index exponent g, -3dB bandwidth [GHz]\n");
 					for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
 						ginput = gmin + dg * gcnt;
-						bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);  //(返り値は-3dB帯域幅)
+						bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r, Vradius);  //(返り値は-3dB帯域幅)
 						fprintf(fgvsBW, "%.2lf, %lf\n", ginput, bw);	}}
 				if (DMD == 1) {				
 					fprintf(fgvsBW, "index exponent g, Offset r [um], -3dB bandwidth [GHz]\n");
 					for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
 						ginput = gmin + dg * gcnt;
 						for (r = 0; r <= OffRan; r += OffRes) {
-							bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);  //(返り値は-3dB帯域幅)
+							bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r, Vradius);  //(返り値は-3dB帯域幅)
 							fprintf(fgvsBW, "%.2lf, %.2lf, %lf\n", ginput, r, bw);	}}}
 	fclose(fgvsBW);}}
 	fclose(fptr);}		
@@ -206,7 +211,7 @@ int main ( void ) {
 
 
 //! 以下サブ関数     ////////////////////////////////////////////////////////////
-double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r){
+double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, double Vradius){
 	//! //////////  宣言  //////////
 	FILE  *fp,*fp2, *fp3, *fp4, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4;
 	int    i, j, l, m, n, y, nr, jmax, count = 0;
@@ -806,58 +811,39 @@ next:
 					//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 					}}}
 
-
 			if (launch == 2) {
-				//! 貼り付けただけ部分はここから   ////////////////////////////////////////		
-							//TODO For measuring minEMBc   //////////////////////////////////////////////
-				char trash[65536];
-				int min, lin;
-
-				FILE   *fp5, *fp8;
-				int    i, j;
-				int    Nxy;
-				double k, A, n0, dr;
-				double r0, dx, dy;
-				double aa, w;				//	int    nr;
-				double Rinxy;
-				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod, Avin;
-				double *Mbeta;
-				double *Mbetain;
-				double **Rlp, **MPD2d, **Rinlp;;
-				double tauin, betain, Rinfin, eigin;
-				double win, xx1, xx2, rr1, rr2;
+				FILE   *fp5, *fp8;			
+				char   trash[65536];
+				int    min, lin, i, j, Nxy, Nvin, couple, nrr1, nrr2, OFFres, OFFrange;
 				int    *modem, *modemin, *model, *modelin;
-				int    Nvin, couple, nrr1, nrr2, max;
-				int    OFFres, OFFrange;
-				double betaoverk, Adash, cef_odod, cef_evod, cef_odev, cef_evev;
-							
+				double k, A, n0, dr, r0, dx, dy, aa, w, Rinxy, tauin, betain, Rinfin, eigin;
+				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod, Avin;
+				double *Mbeta, *Mbetain,    **Rlp, **MPD2d, **Rinlp;
+				double win, xx1, xx2, yy1, yy2, rr1, rr2;
+				double betaoverk, cef_odod, cef_evod, cef_odev, cef_evev, Adash = Vradius;
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
 					fgets(trash, 65536, fp5);
-
 					int minput;
 					char MPDfilename[256];
 					char coupletype[128];
 					//! forループ  [OFFSET]
-					for (int ii = 0; ii <= OFFrange / OFFres + 1; ii++) {
-						fscanf(fp5, "%s", trash);
+					//for (int ii = 0; ii <= OFFrange / OFFres + 1; ii++) {
+						fscanf(fp5, "%s", trash);		//!? fp5に関するfscanfは波長ループの外にするかメイン関数内に入れるかしたい
 						double E2m_evin, E2m_ev;
 						//! forループ  [MODE NUMBER]
-						for (minput = 0; minput < max; minput++) {
-							if (ii == 0) {
-								fscanf(fp5, "%d, %d, %lf, %lf, %lf, %lf, %lf,", &min, &lin, &tauin, &betain, &betaoverk, &Rinfin, &eigin);
-								modemin[minput] = min;
-								modelin[minput] = lin;
-								Mbetain[minput] = betain;
-							}
+						for (minput = 0; minput < Nvmode; minput++) {
+							
+							fscanf(fp5, "%d, %d, %lf, %lf, %lf, %lf, %lf,", &min, &lin, &tauin, &betain, &betaoverk, &Rinfin, &eigin);
+							modemin[minput] = min;
+							modelin[minput] = lin;
+							Mbetain[minput] = betain;
+							
 							printf("%d\t%d\n", modemin[minput], modelin[minput]);
 							if (couple == 0) { Adash = Avin; }		if (couple == 1) { Adash = A; }
 
 							for (j = 0; j <= (int)(Adash / dr); j++) {
-								if (ii == 0) {
-									fscanf(fp5, "%lf,", &Rinlp[minput][j]);
-								}
-							}
-							if (ii == 0) { fscanf(fp5, "%lf\n", &Rinlp[minput][j]); }
+								fscanf(fp5, "%lf,", &Rinlp[minput][j]);				}
+							fscanf(fp5, "%lf\n", &Rinlp[minput][j]); 
 							for (m = 0; m < NLP; m++) {
 								Am_evev = 0.0;		Am_evod = 0.0;
 								Am_odev = 0.0;		Am_odod = 0.0;
@@ -865,21 +851,17 @@ next:
 								Rinxy = 0.0;
 
 								for (i = 0; i < Nxy; i++) {
-									xx1 = (-(double)Nxy * dx / 2.0) + ((double)i * dx);
+									xx1 = (Vradius / Avin) * ((-(double)Nxy * dx / 2.0) + ((double)i * dx));
 									if (launch == 2) {
 										xx2 = (r0 - (double)Nxy * dx / 2.0) + ((double)i * dx);
 									}
-									if (launch == 3) {
-										xx2 = ((ii * (double)OFFres * 1.0e-6) - (double)Nxy * dx / 2.0) + ((double)i * dx);
-									}
-
 									for (j = 0; j < Nxy; j++) {
-										yy = (-(double)Nxy * dx / 2.0) + ((double)j * dy);
-										rr1 = sqrt(xx1 * xx1 + yy * yy);
-										rr2 = sqrt(xx2 * xx2 + yy * yy);
+										yy1 = (Vradius / Avin) * (-(double)Nxy * dx / 2.0) + ((double)j* dy);
+										yy2 = (-(double)Nxy * dx / 2.0) + ((double)j * dy);
+										rr1 = sqrt(xx1 * xx1 + yy1 * yy1);
+										rr2 = sqrt(xx2 * xx2 + yy2 * yy2);
 										nrr1 = (int)(rr1 / dr);
 										nrr2 = (int)(rr2 / dr);
-
 										//   ここは入射するレーザ（ファイバ）の，xy平面上の2次元強度分布を計算    
 										if (nrr1 == 0) {		// 以下の配列Rinxyは，メモリ内の配列Rlpを使うので読み込みはHDDを介すより速い
 											Rinxy = Rinlp[minput][0] + (Rinlp[minput][1] - Rinlp[minput][0]) * (rr1 / dr);
@@ -905,10 +887,10 @@ next:
 										}
 
 										//   重なり積分に用いる電場分布の算出・重なり積分の実行   
-										Em_evin = Rinxy * cos((double)(modemin[minput]) * atan2(yy, xx1));
-										Em_odin = Rinxy * sin((double)(modemin[minput]) * atan2(yy, xx1));
-										Em_ev = Rxy * cos((double)(modem[m]) * atan2(yy, xx2));
-										Em_od = Rxy * sin((double)(modem[m]) * atan2(yy, xx2));
+										Em_evin = Rinxy * cos((double)(modemin[minput]) * atan2(yy1, xx1));
+										Em_odin = Rinxy * sin((double)(modemin[minput]) * atan2(yy1, xx1));
+										Em_ev = Rxy * cos((double)(modem[m]) * atan2(yy2, xx2));
+										Em_od = Rxy * sin((double)(modem[m]) * atan2(yy2, xx2));
 										if (i < 1 && j < 1) {
 											if (modem[m] == 0) {
 												//printf("%lf, %lf, %lf, %lf\t\t", Em_evin, Em_odin, Em_ev, Em_od); 
@@ -944,21 +926,25 @@ next:
 							}
 							printf("\n");
 						}
+						//! Almup
+
+
+
+						//! End of Almup
 						printf("\n");
-						for (minput = 0; minput < max; minput++) { printf("%d\t%lf\n", modemin[minput], Mbetain[minput]); }
+						for (minput = 0; minput < Nvmode; minput++) { printf("%d\t%lf\n", modemin[minput], Mbetain[minput]); }
 						printf("\n");
 						for (m = 0; m < NLP; m++) { printf("%d\t%lf\n", modem[m], Mbeta[m]); }
 						if (launch == 2) { sprintf(MPDfilename, "MPD_%s\\MPD2d_%s_%dum_Offset_single(not_dependence_on_x).csv", coupletype, coupletype, r0); }
-						if (launch == 3) { sprintf(MPDfilename, "MPD_%s\\MPD2d_%s_%dum_Offset.csv", coupletype, coupletype, ii * OFFres); }
 						if ((fp8 = fopen(MPDfilename, "w")) != NULL) {
 							fprintf(fp8, "Mode number for receiver-side fiber,");
 							if (couple == 0) { fprintf(fp8, "m, l, "); }
-							for (j = 0; j < max; j++) { fprintf(fp8, "%d,", j); }
+							for (j = 0; j < Nvmode; j++) { fprintf(fp8, "%d,", j); }
 							fprintf(fp8, "\n");
 							for (i = 0; i < NLP; i++) {
 								fprintf(fp8, "%d,", i);
 								if (couple == 0) { fprintf(fp8, "%d, %d, ", modem[i], model[i]); }
-								for (j = 0; j < max; j++) {
+								for (j = 0; j < Nvmode; j++) {
 									// printf("%e, ", MPD2d[i][j]);
 									fprintf(fp8, "%e,", MPD2d[i][j]);
 								}
@@ -967,9 +953,8 @@ next:
 							fclose(fp8);
 						}
 						if (launch == 2) break;
-					}
+					//}
 				}
-					//! ここまで   /////////////////////////////////////////////////
 
 				/*for (n = 0;n < Nom; n++) {	
 				{
@@ -991,7 +976,7 @@ next:
 						if ( matdis == 1 ) { Amplu[m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
 						//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 						}}}*/
-				//TODO Arbitrary condition
+				
 			}
 			//TODO End of lanching condition setting for measuring minEMBc   //////////////////////////////////////////////
 			/*if ( launch == 2 ) { E2total = 0.0;
@@ -1269,7 +1254,7 @@ system("pause");
 return 0;
 }
 
-void selectOsciMode(int Nvmode) {	//!? m,l,tau,beta,betaoverk,Rinf,eig,InfProfを引数にしてもよいが不必要なので要検討
+void selectOsciMode(int Nvmode, double Vradius) {	//!? m,l,tau,beta,betaoverk,Rinf,eig,InfProfを引数にしてもよいが不必要なので要検討
 	
 	//! 宣言と初期化
 	FILE* fptr, *fptrcol, *fw;
@@ -1303,7 +1288,7 @@ void selectOsciMode(int Nvmode) {	//!? m,l,tau,beta,betaoverk,Rinf,eig,InfProfを
 		else{ 
 			fscanf(fptrcol, "%lf,", &lf1); 
 			printf("%lf, ", lf1);	}		
-		if (lf1 != 3.5) { rcnt += 1; }	//!? 3.5 um (VCSELコアクラッド界面)を読み込むまで継続
+		if (lf1 != Vradius) { rcnt += 1; }	//!? 3.5 um (VCSELコアクラッド界面)を読み込むまで継続
 		else { break; }						//!? 読み込みしだい「break」
 		if (rcnt >= 10000) { break; system("pause"); }
 	}
