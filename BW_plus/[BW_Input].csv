@@ -8,6 +8,7 @@ Source central wavelength (nm),lamda0,850
 (wo=1) Correlation length of heterogeneities (nm),Dc,450
 (wo=2) mean square of curvature fluctuation <É–2> (m2),sigma2,4.00E-02
 (wo=2) Correlation lengthof the curvature Db (mm),Db,1.20E+00
+Differential mode delay (0_Single_1_DMD),DMD,0
 (launch) Launching condition parameter (0_OFL_1_RML_2_minEMBc),launch,0
 (launch=1) Offset (É m),r0,0
 (launch=1&2) Cartesian spatial step size (nm),dx,5
@@ -42,12 +43,4 @@ Source central wavelength (nm),lamda0,850
 (launch=2) VCSEL beam radius (um),V0,3.5
 (launch=2) VCSEL cavity refractive index,nv0,3.52
 (launch=2) VCSEL cladding refractive index,nv1,3.5
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
+(launch=2) Number of oscillation mode from VCSEL,Nvmode,5

@@ -1,12 +1,14 @@
 #pragma warning( disable: 0266 )	//!? マネージヒープ
-#pragma warning( disable: 4101 )	//!? 
-#pragma warning( disable: 4996 )	//!? 
-#pragma warning( disable: 6031 )	//!? 
-#pragma warning( disable: 6001 )	//!? 
-#pragma warning( disable: 6385 )	//!? 
-#pragma warning( disable: 6386 )	//!? 
-#pragma warning( disable: 6262 )	//!? 
-#pragma warning( disable: 26451 )	//!? 
+#pragma warning( disable: 4101 )	//!? 使用していない変数
+#pragma warning( disable: 4477 )	//!? 初期化されていない変数に対してfscanfで値を代入
+#pragma warning( disable: 4700 )	//!? 初期化されていない配列に対してfscanfで値を代入
+#pragma warning( disable: 4996 )	//!? fscanf関連して、バッファオーバーランを起こすなどの脆弱性の恐れ
+#pragma warning( disable: 6001 )	//!? 初期化されていないメモリが使用されています
+#pragma warning( disable: 6031 )	//!? fscanfの戻り値を無視
+#pragma warning( disable: 6385 )	
+#pragma warning( disable: 6386 )	
+#pragma warning( disable: 6262 )	
+#pragma warning( disable: 26451 )	
 
 #include <iostream>
 #include <stdio.h>
@@ -86,7 +88,7 @@ void inputFEM();
 //!? 発振モードの選定
 void selectOsciMode(int Nvmode);	//TODO m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする		//char *directory
 //!? -3dB帯域幅計算関数
-double sweep_g(int SingleSweep, double ginput, double r, int Nvmode);
+double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r);
 
 /* 1. パラメータの定義 */
 // m: モード次数( TE&TM ~ 1, EH ~ n+1, HE ~ n-1), l: 動径方向モード次数, n: 方位角モード次数
@@ -123,11 +125,12 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode);
 //! 以下メイン関数   ////////////////////////////////////////////////////////////
 int main ( void ) {	
 	
-	FILE  *fptr, *fgvsBW;
+	FILE  *fp, *fptr, *fgvsBW, *frvsBW;
 	char   directory[128];
-	int    SingleSweep, rMeasure;
+	int    SingleSweep, rMeasure, DMD;
 	double gmin, gmax, dg, ginput, bw;	 ginput = bw =0;
-	
+	double dtrsh; //読み込み用
+	double r = 0;
 	// int Vradius = 3.5;
 	// int Vcore = 3.52;
 	// int Vclad = 3.5;
@@ -136,7 +139,23 @@ int main ( void ) {
 	inputFEM();		//!? 上記のVradiusなどを変数として使用してもよいが不必要なので今後要検討
 	//sprintf(directory, "%s", inputFEM);
 
-	int Nvmode = 5;
+	//!? Nvmode, OffRes, OffRan の読み込み
+	int Nvmode;		double OffRes, OffRan;	
+	if ((fp = fopen("[BW_Input].csv", "r")) != NULL) {
+		char s1[128], s2[128];	int i = 0;
+		for (; ; ) {
+			fscanf(fp, "%[^,], %[^,], ", s1, s2);
+			if (s2 == "Nvmode") { fscanf(fp, "%d\n", &Nvmode); i += 1; }
+			else if (s2 == "DMD") { fscanf(fp, "%d\n", &DMD); i += 1; }
+			else if (s2 == "OffRes") { fscanf(fp, "%lf\n", &OffRes); i += 1; }
+			else if (s2 == "OffRan") { fscanf(fp, "%lf\n", &OffRan); i += 1; }
+			else { fscanf(fp, "%lfn", &dtrsh); i += 1; }
+			if (i == 4) { break; }		}}
+	else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE ); }
+	fclose(fp);
+	printf("Nvmode: %d\n", Nvmode);
+	printf("OffRes: %.2lfum\n", OffRes);
+	printf("OffRan: %.2lfum\n", OffRan);
 	
 	selectOsciMode(Nvmode);		//!? m, l, tau, beta, betaoverk, Rinf, eig, InfProf を引数にする
 	if ( (fptr = fopen("[BW_Input_index_exponent].csv","r")) != NULL ) {
@@ -146,43 +165,55 @@ int main ( void ) {
 		 fscanf (fptr, "%[^,], %[^,], %lf\n", ss1, ss2, &gmax );
 		 fscanf (fptr, "%[^,], %[^,], %lf\n", ss1, ss2, &dg );
 		 //!? 下行は今後削除する予定
-		 fscanf(fptr, "%[^,], %[^,], %d\n", ss1, ss2, &rMeasure);	}
+		 fscanf(fptr, "%[^,], %[^,], %d\n", ss1, ss2, &rMeasure);	
+		 fclose(fptr);}
 	else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE ); }
-
-	double r = 0;
 
 	//TODO ここにオフセット量をパラメータとして 関数sweep_g に代入
 	if (SingleSweep == 0){
-		bw = sweep_g(SingleSweep, ginput, r, Nvmode);  //(返り値は-3dB帯域幅)
-	}
+		if (DMD == 0){
+			bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);		} //(返り値は-3dB帯域幅)
+		if (DMD == 1) {
+			if ((frvsBW = fopen("BW_EMBc.csv", "r")) != NULL) {
+				fprintf(frvsBW, "Offset r [um], -3dB bandwidth [GHz]\n");
+				for (r = 0; r <= OffRan; r += OffRes) {
+					bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);	
+					fprintf(frvsBW, "%.2lf, %lf\n", r, bw);		}}}}  //(返り値は-3dB帯域幅)
 	
 
 	//! -3dB帯域幅の g値依存性
 	if (SingleSweep == 1){
 		if ((fptr = fopen("[BW_Input_index_exponent].csv", "r")) != NULL) {
 			if ((fgvsBW = fopen("BW_EMBc.csv", "w")) != NULL) {
-				fprintf(fgvsBW, "index exponent g, -3dB bandwidth\n");
-				for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
-					ginput = gmin + dg * gcnt;
-					bw = sweep_g(SingleSweep, ginput, r, Nvmode);  //(返り値は-3dB帯域幅)
-					fprintf(fgvsBW, "%.2lf, %lf\n", ginput, bw);
-	}}}}
-	fclose(fptr);
-	fclose(fgvsBW);
+				if (DMD == 0) {				
+					fprintf(fgvsBW, "index exponent g, -3dB bandwidth [GHz]\n");
+					for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
+						ginput = gmin + dg * gcnt;
+						bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);  //(返り値は-3dB帯域幅)
+						fprintf(fgvsBW, "%.2lf, %lf\n", ginput, bw);	}}
+				if (DMD == 1) {				
+					fprintf(fgvsBW, "index exponent g, Offset r [um], -3dB bandwidth [GHz]\n");
+					for (int gcnt = 0; gcnt <= (gmax - gmin) / dg; gcnt++) {
+						ginput = gmin + dg * gcnt;
+						for (r = 0; r <= OffRan; r += OffRes) {
+							bw = sweep_g(SingleSweep, ginput, Nvmode, DMD, r);  //(返り値は-3dB帯域幅)
+							fprintf(fgvsBW, "%.2lf, %.2lf, %lf\n", ginput, r, bw);	}}}
+	fclose(fgvsBW);}}
+	fclose(fptr);}		
 }	
 //! メイン関数終了   ////////////////////////////////////////////////////////////
 
 
 
 //! 以下サブ関数     ////////////////////////////////////////////////////////////
-double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
+double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r){
 	//! //////////  宣言  //////////
-	FILE  *fp,*fp2, *fp3, *fp4, *fp5, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4;
-	int    i, j, l, m, n, x, y, nr, jmax, count = 0;
+	FILE  *fp,*fp2, *fp3, *fp4, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4;
+	int    i, j, l, m, n, y, nr, jmax, count = 0;
 	int    mater, Nl, N, Nclad, Nbeta, NLP, NLP0, Ntotal, Nwkb, Ptotal, myu, nyu, nstd, nstdmin, nstdmax, mm;
-	int    Nz, Nzout, Nf, Nfp, Ti, Li, Lmax, nmax, wo, gi, ss, fout, matdis, scc, nP, Mn, launch, Nxy, Nom;
-	double lamda, lamda0, lamdamin, lamdamax, lpmin, lpmax, dlp, fp0, dl, k, omega,  A, AA, g, n0, n1, dr;
-	double delta, NA, aa, v, w, D, w0, r0, dx, dy, xx, yy, rr, Rxy, Ein, Emev, Emod, Amev, Amod, OffRes, OffRan, r0dash;
+	int    Nz, Nzout, Nf, Nfp, Ti, Li, Lmax, nmax, wo, gi, fout, matdis, scc, nP, Mn, launch, Nxy, Nom;
+	double lamda, lamda0, lamdamin, lamdamax, lpmin, lpmax, dlp,  dl, k, omega,  A, AA, g, n0, n1, dr;
+	double delta, NA, aa, v, w, D, w0, r0, dx, dy, xx, yy, rr, Rxy, Ein, Emev, Emod, Amev, Amod, r0dash;
 	double tau, beta, dbeta, bb, eps1, eps2, sum, sumcore, sumclad, Rinf, dd, ds, eig;
 	double deps2, Dc, sigma2, Db, dbmn, E_over,  hmn;
 	double zmax, zout, dz, Tv, Hmmmin, Hrowsum, tauminstd, nctaumax, taumax, taumin = 0;
@@ -192,6 +223,7 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 	int    *model, *modem,*modep, *pdeg, *kim, *Pnum;
 	double V0, nv0, nv1, gsingle;	gsingle = 0;
 	double** OSmat;
+	double dtrsh;
 
 	//! ////////////////////////////////////////////////////////////
 	//! //////////            1-1. 初期設定                ///////////
@@ -209,12 +241,13 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &Dc );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &sigma2 );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &Db );
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh );
 		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &launch );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &r0dash);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dx );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &w0 );		
-		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &OffRes);
-		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &OffRan);
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);
 		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &matdis );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &lamdamin );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &lamdamax );
@@ -242,17 +275,17 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &nP ); 
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &V0);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &nv0);
-		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &nv1);	}
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &nv1);	
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);	}
 	 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE ); }
 	fclose(fp);
 
 	//! g値の上書き
-	 if (SingleSweep == 0){	
-		g = gsingle;	
-		r0 = r0dash;}
-	 if (SingleSweep == 1){	
-		g = ginput;		
-		r0= r;		}
+	 if (SingleSweep == 0){	g = gsingle;	}
+	 if (SingleSweep == 1){	g = ginput;		}
+	//! オフセットr の上書き
+	 if (DMD == 0){	r0 = r0dash;}
+	 if (DMD == 1){	r0 = r;		}
 
 
 	 /* 入力パラメータの単位変換 */
@@ -299,7 +332,7 @@ double sweep_g(int SingleSweep, double ginput, double r, int Nvmode){
 		 if ( (fr8 = fopen ("[OS_VCSEL_input_source_spectrum].csv", "r") ) != NULL ) {
 			 for ( i = 0; i <= Nfp; i++ ) { 
 				 for (j = 0; j < Nvmode; j++) {
-					 fscanf ( fr8, "%lf\n", &OSmat[i] ); }}}//, %lf	&Wl[i],
+					 fscanf ( fr8, "%lf\n", &OSmat[i][j] ); }}}//, %lf	&Wl[i],
 		 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE );	}
 		 fclose(fr8);
 	 }
@@ -780,26 +813,18 @@ next:
 				char trash[65536];
 				int min, lin;
 
-				FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fr, *fpulse, *fopulse, *fmpd;
-				char   fppath[128], fp2path[128], fp3path[128], fp4path[128], fp5path[128], fp6path[128], fp7path[128];
-				char   fp8path[128], frpath[128], fpulsepath[128], fopulsepath[128], fmpdpath[128];
-						  fppath[0]   =	 fp2path[0] = fp3path[0] = fp4path[0] = fp5path[0] = fp6path[0] = fp7path[0] =
-						  fp8path[0]  =  frpath[0] = fpulsepath[0] = fopulsepath[0] = fmpdpath[0] = '\0' ;
-				int    myu, x, y, i, j, jmax, count;
-				int    m, l, NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, Ntmin, Ntmax, Nf, launch;
-				int    Nxy, xmax, LT, xL;
-				double lamda, k, omega, A, AA, g, n0, n1, dr, L, Tv;
-				double r0, w0, dx, dy;
-				double delta, NA, aa, v, w, D;
-				double tau, beta, dbeta, bb, eps1, eps2, sum, Rinf, de, df, eig;
-				double taumin, taumax, fmin, fmax, dfrq, Hw, ReHw, ImHw, bw;					//	int    nr;
-				double yy, Rxy, Rinxy;
-				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod;
-				double ncav, noxi, Avin;
-				double *GI, *pulse, *opulse, *q, *qg, *R, *R2, *Rb, *a, *b, *ML, *MD, *Mtau, *P, *M, *Mbeta, *MPD;
+				FILE   *fp5, *fp8;
+				int    i, j;
+				int    Nxy;
+				double k, A, n0, dr;
+				double r0, dx, dy;
+				double aa, w;				//	int    nr;
+				double Rinxy;
+				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod, Avin;
+				double *Mbeta;
 				double *Mbetain;
 				double **Rlp, **MPD2d, **Rinlp;;
-				double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
+				double tauin, betain, Rinfin, eigin;
 				double win, xx1, xx2, rr1, rr2;
 				int    *modem, *modemin, *model, *modelin;
 				int    Nvin, couple, nrr1, nrr2, max;
@@ -1249,16 +1274,10 @@ void selectOsciMode(int Nvmode) {	//!? m,l,tau,beta,betaoverk,Rinf,eig,InfProfを
 	//! 宣言と初期化
 	FILE* fptr, *fptrcol, *fw;
 	char fppath[128], st[65536];
-	char s1[128], s2[128], s3[128], s4[128], s5[128], s6[128], s7[128];
-	int    NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, Ntmin, Ntmax, Nf, launch, rcnt, colcnt;
-	double delta, NA, aa, v, w, D;		double dr;
-	double dbeta, bb, eps1, eps2, sum, de, df;
-	double taumin, taumax, fmin, fmax, dfrq, Hw, ReHw, ImHw, bw;					//	int    nr;
-	double yy, Rxy, Rinxy;	double ncav, noxi, Avin;	double lf1 = 0.0;
-	double *Mbetain;		double** Rlp, ** MPD2d, ** Rinlp;;
-	double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
-	int    *modem, * modemin, * model, * modelin;
-	int    Nvin, couple, min, lin, nrr1, nrr2, max;
+	char s1[128];
+	int    rcnt, colcnt;
+	double dr;
+	double lf1 = 0.0;
 	int    *m_guided, *l_guided, *modenum;
 	double *tau_guided, *beta_guided, * betaoverk_guided, * Rinf_guided, * eig_guided;
 	double **IntProf_guided;
@@ -1371,29 +1390,24 @@ void selectOsciMode(int Nvmode) {	//!? m,l,tau,beta,betaoverk,Rinf,eig,InfProfを
 }
 
 void inputFEM() {
-	FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fr, *fpulse, *fopulse, *fmpd;
+	FILE   *fp, *fp2, *fp3, *fp4, *fp5, *fp6, *fr, *fpulse, *fopulse, *fmpd;
 	char   fppath[128], fp2path[128], fp3path[128], fp4path[128], fp5path[128], fp6path[128], fp7path[128];
 	char   fp8path[128], frpath[128], fpulsepath[128], fopulsepath[128], fmpdpath[128];
 	          fppath[0]   =	 fp2path[0] = fp3path[0] = fp4path[0] = fp5path[0] = fp6path[0] = fp7path[0] =
 	          fp8path[0]  =  frpath[0] = fpulsepath[0] = fopulsepath[0] = fmpdpath[0] = '\0' ;
-	int    myu, x, y, i, j, jmax, count;
-	int    m, l, NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, Ntmin, Ntmax, Nf, launch;
-	int    Nxy, xmax, LT, xL;
+	int    y, i, j, jmax, count;
+	int    m, l, NLP, NLP0, Ntotal, N, Nclad, Nbeta, mater, profile, Nwkb, launch, Nf;
+	int    Nxy;
 	double lamda, k, omega, A, AA, g, n0, n1, dr, L, Tv;
 	double r0, w0, dx, dy;
 	double delta, NA, aa, v, w, D;
 	double tau, beta, dbeta, bb, eps1, eps2, sum, Rinf, de, df, eig;
-	double taumin, taumax, fmin, fmax, dfrq, Hw, ReHw, ImHw, bw;					//	int    nr;
-	double yy, Rxy, Rinxy;
-	double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod;
+	double fmin, fmax, dfrq;					//	int    nr;
 	double ncav, noxi, Avin;
-	double *GI, *pulse, *opulse, *q, *qg, *R, *R2, *Rb, *a, *b, *ML, *MD, *Mtau, *P, *M, *Mbeta, *MPD;
-	double *Mbetain;
-	double **Rlp, **MPD2d, **Rinlp;;
-	double tauin, betain, Rinfin, eigin, betain_devided_by_k, data;
-	double win, xx1, xx2, rr1, rr2;
-	int    *modem, *modemin, *model, *modelin;
-	int    Nvin, couple, min, lin, nrr1, nrr2, max;
+	double *GI, *pulse, *q, *qg, *R, *R2, *Rb, *a, *b, *ML, *MD, *Mtau, *M, *Mbeta, *MPD;
+	double **Rlp;
+	int    *modem, *model, *modelin;
+	int    Nvin, couple;
 	int    OFFres, OFFrange;
 	char   trash[65536] = "\0";
 	char   directory[128] = "FILE_for_IO";
