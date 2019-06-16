@@ -221,7 +221,7 @@ int main ( void ) {
 //! 以下サブ関数     ////////////////////////////////////////////////////////////
 double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, double Vradius){
 	//! //////////  宣言  //////////
-	FILE  *fp,*fp2, *fp3, *fp4, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4;
+	FILE  *fp,*fp2, *fp3, *fp4, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4, *fdebug;
 	int    i, j, l, m, n, y, nr, jmax, count = 0;
 	int    mater, Nl, N, Nclad, Nbeta, NLP, NLP0, Ntotal, Nwkb, Ptotal, myu, nyu, nstd, nstdmin, nstdmax, mm;
 	int    Nz, Nzout, Nf, Nfp, Ti, Li, Lmax, nmax, wo, gi, fout, matdis, scc, nP, Mn, launch, Nxy, Nom;
@@ -232,12 +232,12 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	double zmax, zout, dz, Tv, Hmmmin, Hrowsum, tauminstd, nctaumax, taumax, taumin = 0;
 	double fmin, fmax, df, fpmin, fpmax, dfp, A00, Aw00, Hw, ReHw, ImHw, me, bw, tav, rms, Ptot, ap, spct, Cpsum;
 	double *GI, *GC, *q, *q2, *R, *R2, *Rb, *a, *b, *ML, *MD, **Rlp, *Mtau, *Mbeta;
-	double **Amin, **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
+	double **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
 	int    *model, *modem,*modep, *pdeg, *kim, *Pnum;
 	double V0, nv0, nv1, gsingle;	gsingle = 0;
 	double dtrsh;
-	double** OSmat;
-	double*** Amplu;
+	double **OSmat;
+	double ***Amin, ***Amplu;
 
 	//! ////////////////////////////////////////////////////////////
 	//! //////////            1-1. 初期設定                ///////////
@@ -301,7 +301,6 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	 if (DMD == 0){	r0 = r0dash;}
 	 if (DMD == 1){	r0 = r;		}
 
-
 	 /* 入力パラメータの単位変換 */
 	 N = (int) ( 1000.0*A / dr ); Nclad = (int)( 1000.0*( AA - A ) / dr ); // 面内動径方向ステップ数の換算（必ずこの位置で定義）．
 	 if ( Nl%2 != 0 ) { Nl = Nl+1;} dl = ( lamdamax - lamdamin ) / (double)Nl;  // 材料分散評価用波長ステップ	
@@ -336,9 +335,9 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	 if (launch == 0 || launch == 1) {
 		 Nvmode = 1;
 		 if ((fr8 = fopen("[OS_Input_source_spectrum].csv", "r")) != NULL) {
-			 for (i = 0; i <= Nfp; i++) {
-				 for (j = 0; j < Nvmode; j++) {
-					 fscanf(fr8, "%lf\n", &OSmat[i][j]);	}}}
+			 for (i = 0; i <= Nfp; i++) { j=0;
+				 //for (j = 0; j < Nvmode; j++) {
+					 fscanf(fr8, "%lf\n", &OSmat[i][j]);	}}//}
 		 else { printf(" U cannot open the file !\n"); exit(EXIT_FAILURE); }
 		 fclose(fr8);
 	 }
@@ -432,6 +431,9 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	 // 光源スペクトル
 	 if ( ( fs2 = fopen ( "BW_source-spectrum.csv", "w" )) != NULL ) {
 			 for ( i = 0; i <= Nfp; i++ ) { fprintf ( fs2, "%f,%f,%f\n", fpmin+double(i)*dfp,1.0e-3*C / ( fpmin+double(i)*dfp ), OSin[Nfp-i] ); }}
+	 else { printf ( "U cannot open the file!\n" ); exit ( EXIT_FAILURE ); }
+	 if ( ( fdebug = fopen ( "[Debug].csv", "w" )) != NULL ) {
+		 fprintf ( fs2, "Debug start\n");}
 	 else { printf ( "U cannot open the file!\n" ); exit ( EXIT_FAILURE ); }
 
 	 printf ( "Total spatial steps Nf: %d\n", Nf );
@@ -703,7 +705,8 @@ next:
 
 			/* 配列の記憶領域確保および初期化 */	
 			H = dmatrix ( 0, NLP-1, 0, NLP-1 );			init_dmatrix ( H, 0, NLP-1, 0, NLP-1 );
-			Amin = dmatrix ( 0, NLP-1, 0, Lmax );		init_dmatrix ( Amin, 0, NLP-1, 0, Lmax );
+			Amin = d3tensor ( 0, Nvmode, 0, NLP-1, 0, Lmax );
+			init_d3tensor ( Amin, 0, Nvmode, 0, NLP-1, 0, Lmax );
 			alpha = drealvector ( 0, NLP-1 );			init_realvector ( alpha, 0, NLP-1 );
 			kim = dintvector ( 0, NLP-1 );				init_intvector ( kim, 0, NLP-1 );
 			Pm = drealvector ( 0, NLP-1 );				init_realvector ( Pm, 0, NLP-1 );
@@ -795,8 +798,8 @@ next:
 				for ( m = 0; m < NLP; m++ ) {
 					if ( matdis == 0 ) { if (modem[m] == 0) { Amplu[minput][m][0] = 100.0; } else { Amplu[minput][m][0] = 200.0; }} // 縮退数の考慮
 					if ( matdis == 1 ) { 
-						if (modem[m] == 0) { Amplu[minput][m][0] = 100.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }
-						else { Amplu[minput][m][0] = 200.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }}}}
+						if (modem[m] == 0) { Amplu[minput][m][0] = 100.0*OSmat[ (int)((lamda -lpmin)/dlp) ][0]; }
+						else { Amplu[minput][m][0] = 200.0*OSmat[ (int)((lamda -lpmin)/dlp) ][0]; }}}}
 			
 			// RML condition
 			if ( launch == 1 ) {
@@ -818,7 +821,7 @@ next:
 						Amev = Amev*Amev / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
 						Amod =  Amod*Amod / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
 					if ( matdis == 0 ) { Amplu[minput][m][0] = 100.0* (Amod + Amev); }
-					if ( matdis == 1 ) { Amplu[minput][m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
+					if ( matdis == 1 ) { Amplu[minput][m][0] = 100.0*( Amod + Amev )*OSmat[ (int)((lamda -lpmin)/dlp) ][0]; }
 					//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 					}}}
 
@@ -1010,9 +1013,11 @@ next:
 
 			// This may be not adequate. for ( m = 0; m < NLP; m++ ) { A00 = A00 + Aplu[m][0]; } Aw00 = Aw00 + A00;
 			// Correction for the highest mode group ( elimination of power )
-			for ( m = 0; m < NLP; m++ ) { if ( modep[m] == Ptotal ) { Amplu[minput][m][0] = 0.0; }}
+			for (minput = 0;minput < Nvmode;minput++) {
+				for ( m = 0; m < NLP; m++ ) { if ( modep[m] == Ptotal ) { Amplu[minput][m][0] = 0.0; }}}
 			// Total power of input impulse
-			for ( m = 0; m < NLP; m++ ) { A00 = A00 + Amplu[minput][m][0]; } Aw00 = Aw00 + A00;
+			for(minput=0;minput<Nvmode;minput++){
+				for ( m = 0; m < NLP; m++ ) { A00 = A00 + Amplu[minput][m][0]; } Aw00 = Aw00 + A00;}
 
 			fprintf ( fp2, "Amplitude of input impulse,A00,%e,\n", A00 );
 			fprintf ( fp2, "Cumulative amplitude of input impulse,Aw00,%e,\n\n", Aw00 );
@@ -1021,7 +1026,7 @@ next:
 			/* 出力ファイル */
 			if ( y == Nl/2 || fout == 1 ) {
 				// 時間波形 P
-				fprintf ( fr2, "nstc=%d,", nstd );
+				fprintf ( fr2, "nstd=%d,", nstd );
 				for ( n = 0; n <= Lmax; n++ ) { fprintf ( fr2, "%f,", (double)n*Tv );} fprintf ( fr2, "pct.\n" );
 				fprintf ( fr2, "%f,%f\n", 0.0, A00 );
 				// モードパワー分布 Pm
@@ -1054,6 +1059,7 @@ next:
 			//! ////////////////////////////////////////////////////////
 			/****************************************************************************************/
 			printf("start!\n");
+			minput = 0;
 			for ( i = 1; i <= Nz; i++ ) // z(i-1) ~ zi
 			{
 				/* 相対遅延ステップ数の最大値算出 */
@@ -1061,22 +1067,24 @@ next:
 				Li = (int) ( (( taumax - taumin )*( (double)i*dz ) / Tv) + 0.5 );				
 
 				/* 相対遅延ステップ数のモード分布算出 */
+				fprintf(fdebug, "kim[m], ");
 				for ( m = 0; m < NLP; m++ ) {
 					kim[m] = (int) ( (( Mtau[m] - taumin )*( (double)i*dz ) / Tv ) + 0.5 )
-					              - (int) ( (( Mtau[m] - taumin )*( (double)(i-1)*dz ) / Tv ) + 0.5 ); }
+					              - (int) ( (( Mtau[m] - taumin )*( (double)(i-1)*dz ) / Tv ) + 0.5 );
+					fprintf(fdebug, "%d, ", kim[m]);}	fprintf(fdebug, "\n");
 
 #pragma omp parallel
 {
 #pragma omp for
 				/* タイムシフト演算 */
 				for ( m = 0; m < NLP; m++ ) {
-					for ( n = 0; n < kim[m]; n++ ) { Amin[m][n] = 0.0; }
-					for ( n = kim[m]; n <= Li; n++ ) { Amin[m][n] = Amplu[minput][m][n - kim[m]]; }}
+					for ( n = 0; n < kim[m]; n++ ) { Amin[minput][m][n] = 0.0; }
+					for ( n = kim[m]; n <= Li; n++ ) { Amin[minput][m][n] = Amplu[minput][m][n - kim[m]]; }}
 #pragma omp for
 				/* カップリング演算 */
 				for ( m = 0; m < NLP; m++ ) {
 					for ( n = 0; n <= Li; n++ ) { me=0.0;
-					for ( l = 0; l < NLP; l++ ) { me = me + H[m][l]*Amin[l][n]; }
+					for ( l = 0; l < NLP; l++ ) { me = me + H[m][l]*Amin[minput][l][n]; }
 					Amplu[minput][m][n] = me; }}
 }
 
@@ -1087,23 +1095,35 @@ next:
 					if ( y == Nl/2 || fout == 1) { fprintf ( fr2, "%f,", (double)i*dz ); }
 					for ( n = 0; n <= Li; n++ ) { ap = 0.0;
 						for ( m = 0; m < NLP; m++ ) { ap = ap + Amplu[minput][m][n]; }
-						if ( y == Nl/2 || fout == 1) { fprintf ( fr2, "%f,", ap ); }}
+						if ( y == Nl/2 || fout == 1) { 
+							fprintf ( fr2, "%f,", ap ); 
+							if(n==0){ fprintf(fdebug, "ap,"); }
+							fprintf ( fdebug, "%f,", ap );}}
+					fprintf(fdebug, "\n");
 					if ( y == Nl/2 || fout == 1) { fprintf ( fr2,"\n" ); }
-					// 最小群遅延の波長依存性を考慮した足し合わせ（基準時間を考慮）
-					if ( y == 0 || nstd == 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[minput][m][n]; }}; }
-					if ( y != 0 && nstd > 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n+nstd] = P[n+nstd] + Amplu[minput][m][n]; }}; }
+					//! 最小群遅延の波長依存性を考慮した足し合わせ（基準時間を考慮）
+					if ( y == 0 || nstd == 0 ) { 
+						for ( n = 0; n <= Li; n++ ) { 
+							for ( m = 0; m < NLP; m++ ) { 
+								P[n] = P[n] + Amplu[minput][m][n]; }}; }
+					if ( y != 0 && nstd > 0 ) { 
+						for ( n = 0; n <= Li; n++ ) { 
+							for ( m = 0; m < NLP; m++ ) { 
+								P[n+nstd] = P[n+nstd] + Amplu[minput][m][n]; }}; }
 					if ( y != 0 && nstd < 0 ) {
 						if ( nstd < nstdmin ) {
-							for ( n = 0; n <= Pnum[y-1] ; n++ ) { P[(Pnum[y-1]-n)+(nstdmin-nstd)] = P[(Pnum[y-1]-n)]; }
+							for ( n = 0; n <= Pnum[y-1] ; n++ ) { 
+								P[(Pnum[y-1]-n)+(nstdmin-nstd)] = P[(Pnum[y-1]-n)]; }
 							for ( n = 0; n < nstdmin-nstd; n++ ) { P[n] = 0.0; }
-							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[minput][m][n]; }}}
+							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { 
+								P[n] = P[n] + Amplu[minput][m][n]; }}}
 						else {
 							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) {
 								P[n+(nstd-nstdmin)] = P[n+(nstd-nstdmin)] + Amplu[minput][m][n]; }}; }};
 					// for ( n = 0; n <= Pnum[y]; n++ ) { fprintf ( fs3,"%f,", P[n] ); } fprintf ( fs3,"\n" );
 				}
 
-
+#if 0
 				// ② 波長分散を考慮しない場合	
 				/* 計算結果の出力 */	
 				if ( matdis == 0 && (i%Nzout == 0 || i == Nz) ) {
@@ -1151,7 +1171,8 @@ next:
 
 					fprintf ( fs, "%f,%d,%d,%f,%f,%f,%f,%f,%f,%f\n", g, NLP, NLP0, taumin*(double)(i-1)*dz*1.0e-3, (double)i*dz, rms, bw, tav, Ptot, Aw00 );
 					printf ( "length:%f m ", (double)i*dz ); printf ( "-3db bandwidth:%f GHz ", bw ); printf ( "pulse broadening:%f ps\n", rms );
-				}			
+				}	
+#endif
 			}
 			/****************************************************************************************/
 
@@ -1159,7 +1180,7 @@ next:
 			 if ( nstd > nstdmax ) { nstdmax = nstd; }
 
 			 free_dmatrix ( H, 0, NLP-1, 0, NLP-1 );
-			 free_dmatrix ( Amin, 0, NLP-1, 0, Lmax );
+			 free_d3tensor ( Amin, 0, Nvmode, 0, NLP-1, 0, Lmax );
 			 free_d3tensor ( Amplu, 0, Nvmode, 0, NLP-1, 0, Lmax );
 			 free_drealvector ( alpha, 0 );
 			 free_dintvector ( kim, 0 );
@@ -1215,15 +1236,18 @@ if ( matdis == 1 ) {
 
 #endif
 
+
 /* スペックルコントラストの計算 */	
+#if 0
 if ( scc == 1 ) {
 	/* 光源スペクトル自己相関関数 Cp */
 	Cp = drealvector ( 0, Nf ); init_realvector ( Cp, 0, Nf );
 	for ( j = 0; j <= Nf; j++ ) {
 		for ( i = 0; i <= Nfp; i++ ) {
 			int jj = (int) ( (double)j*df / dfp );
-			Cp[j] = Cp[j] + OSin[Nfp-i]*OSin[ Nfp-i+jj ]; }
+			Cp[j] = Cp[j] + OSmat[Nfp-i][0]*OSmat[ Nfp-i+jj ][0]; }
 		Cpsum = Cpsum + df*Cp[j]; }
+
 
 // ガウス型スペクトル形状関数
 //		Cp[j] = Cp[j] + exp( -pow( (fpmin + dfp*double(i) - fp0) / fpgw, 2.0 ))
@@ -1236,6 +1260,7 @@ if ( scc == 1 ) {
 		spct = spct + Cp[j]*M[j]*M[j]*df; } spct = sqrt ( 2.0*spct );
 		fprintf ( fs, "%f\n", spct );	printf ( "speckle contrast:%f\n", spct );
 		free_drealvector (Cp, 0); }
+#endif
 
 #if 1
 ////printf("ifdis=1\n");
@@ -1259,7 +1284,7 @@ fclose (fs);	// BW_result.csv
 fclose (fs2);	// BW_Source-spectrum.csv
 fclose (fs3);	// BW_Impulse-responce.csv
 fclose (fs4);	// BW_Output-pulse-waveform.csv
-
+fclose (fdebug);
 system("pause");
 return 0;
 }

@@ -18,11 +18,11 @@ Differential mode delay (0_Single_1_DMD),DMD,0
 (matdis) Material dispersion parameter (0_no_1_yes),matdis,1
 (matdis=1) Evaluated minimum wavelength (nm),lamdamin,850
 (matdis=1) Evaluated maximum wavelength (nm) ,lamdamax,855
-(matdis=1) Partition number of evaluated wavelength,Nl,500
+(matdis=1) Partition number of evaluated wavelength,Nl,100
 (scc) Speckle contrast calculation (0_no_1_yes),scc,1
 (fin1) Input minimum wavelength (nm),lpmin,850
 (fin1) Input maximum wavelength (nm),lpmax,855
-(fin1) Input wavelength resolution (nm),dlp,0.01
+(fin1) Input wavelength resolution (nm),dlp,0.05
 (fin2) Total time span of input pulsewaveform,Ti,400
 (fin3) Refractive index profile,gi,0
 (fout)  File output (0_no_1_yes),fout,1
@@ -33,12 +33,12 @@ Differential mode delay (0_Single_1_DMD),DMD,0
 (FEM) Maximum allowable error for convergence solution vector,eps1,0.000000001
 (FEM) Maximum allowable error of zero eigen value,eps2,0.00001
 (FEM) Maximum number of iteration in inverse power method,jmax,5000
-(CPP) Spatial step size (m),dz,1.00E+00
+(CPP) Spatial step size (m),dz,1.00E-01
 (CPP) Time step size (ps),Tv,1
-(CPP) Output interval (m),zout,200
+(CPP) Output interval (m),zout,100
 (CPP) Minimum evaluated frequency (GHz),fmin,0
-(CPP) Maximum evaluated frequency (GHz),fmax,10
-(CPP) Partition number of evaluated frequency,Nf,1000
+(CPP) Maximum evaluated frequency (GHz),fmax,25
+(CPP) Partition number of evaluated frequency,Nf,2500
 (CPP) Total time steps for maximum group delay difference,nP,10000
 (launch=2) VCSEL beam radius (um),V0,3.5
 (launch=2) VCSEL cavity refractive index,nv0,3.52
