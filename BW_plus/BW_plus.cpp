@@ -22,8 +22,10 @@
 #include <tchar.h>
 #include <locale>
 #include <cstdlib>
+#define _USE_MATH_DEFINES
+#define NR_END 1
+#define FREE_ARG char*
 using namespace std;
-
 
 //! 諸定数の定義
 #define PI 3.141592653
@@ -78,6 +80,10 @@ void init_dmatrix ( double **a, int nr1, int nr2, int nl1, int nl2 );
 void init_intvector ( int *a, int nr1, int nr2 );
 // 1次元実数配列初期化
 void init_realvector ( double *a, int nr1, int nr2 );
+// 3次元配列
+double*** d3tensor(long nrl, long nrh, long ncl, long nch, long ndl, long ndh);
+void init_d3tensor(double*** a, int nr1, int nr2, int nl1, int nl2, int np1, int np2);
+void free_d3tensor(double*** t, long nrl, long nrh, long ncl, long nch, long ndl, long ndh);
 // 畳み込み積分実行関数
 double* convolution ( int n1, double* P1, int n2, double* P2 );
 // ディレクトリ作成関数
@@ -124,6 +130,8 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 // 配列 kim（i番目の微小区間におけるモードmの相対遅延ステップ数）
 
 //! 以下メイン関数   ////////////////////////////////////////////////////////////
+// 単色の場合のモード分散のみを考慮したEMBcを算出したいならば，
+// OS_VCSEL_input_source_spectrum を850nmのところだけ1に他は0にする
 int main ( void ) {	
 	
 	FILE  *fp, *fptr, *fgvsBW, *frvsBW;
@@ -224,11 +232,12 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	double zmax, zout, dz, Tv, Hmmmin, Hrowsum, tauminstd, nctaumax, taumax, taumin = 0;
 	double fmin, fmax, df, fpmin, fpmax, dfp, A00, Aw00, Hw, ReHw, ImHw, me, bw, tav, rms, Ptot, ap, spct, Cpsum;
 	double *GI, *GC, *q, *q2, *R, *R2, *Rb, *a, *b, *ML, *MD, **Rlp, *Mtau, *Mbeta;
-	double **Amin, **Amplu, **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
+	double **Amin, **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
 	int    *model, *modem,*modep, *pdeg, *kim, *Pnum;
 	double V0, nv0, nv1, gsingle;	gsingle = 0;
-	double** OSmat;
 	double dtrsh;
+	double** OSmat;
+	double*** Amplu;
 
 	//! ////////////////////////////////////////////////////////////
 	//! //////////            1-1. 初期設定                ///////////
@@ -695,11 +704,12 @@ next:
 			/* 配列の記憶領域確保および初期化 */	
 			H = dmatrix ( 0, NLP-1, 0, NLP-1 );			init_dmatrix ( H, 0, NLP-1, 0, NLP-1 );
 			Amin = dmatrix ( 0, NLP-1, 0, Lmax );		init_dmatrix ( Amin, 0, NLP-1, 0, Lmax );
-			Amplu = dmatrix ( 0, NLP-1, 0, Lmax );		init_dmatrix ( Amplu, 0, NLP-1, 0, Lmax );
 			alpha = drealvector ( 0, NLP-1 );			init_realvector ( alpha, 0, NLP-1 );
 			kim = dintvector ( 0, NLP-1 );				init_intvector ( kim, 0, NLP-1 );
 			Pm = drealvector ( 0, NLP-1 );				init_realvector ( Pm, 0, NLP-1 );
 			Pg = drealvector ( 0, Ptotal-1 );			init_realvector ( Pg, 0, Ptotal-1 );
+			Amplu = d3tensor(0, Nvmode, 0, NLP - 1, 0, Lmax);	
+			init_d3tensor(Amplu, 0, Nvmode, 0, NLP - 1, 0, Lmax);
 			
 			if ( matdis == 0 ) { P = drealvector ( 0, Lmax ); init_realvector ( P, 0, Lmax ); }
 			A00 = 0.0;		
@@ -779,13 +789,14 @@ next:
 				for ( nyu = 0; nyu < NLP; nyu++ ) { fprintf ( fr, "%f,", H[myu][nyu] ); } fprintf ( fr, "\n" ); }}
 
 			//! 励振条件設定（A+行列の算出）
+			int minput=0;
 			// OFL condition
 			if ( launch == 0 ) {
 				for ( m = 0; m < NLP; m++ ) {
-					if ( matdis == 0 ) { if (modem[m] == 0) { Amplu[m][0] = 100.0; } else { Amplu[m][0] = 200.0; }} // 縮退数の考慮
+					if ( matdis == 0 ) { if (modem[m] == 0) { Amplu[minput][m][0] = 100.0; } else { Amplu[minput][m][0] = 200.0; }} // 縮退数の考慮
 					if ( matdis == 1 ) { 
-						if (modem[m] == 0) { Amplu[m][0] = 100.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }
-						else { Amplu[m][0] = 200.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }}}}
+						if (modem[m] == 0) { Amplu[minput][m][0] = 100.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }
+						else { Amplu[minput][m][0] = 200.0*OSin[ (int)((lamda -lpmin)/dlp) ]; }}}}
 			
 			// RML condition
 			if ( launch == 1 ) {
@@ -806,8 +817,8 @@ next:
 						Amev = Amev + Emev*Ein*dx*dy; Amod = Amod + Emod*Ein*dx*dy; }}
 						Amev = Amev*Amev / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
 						Amod =  Amod*Amod / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
-					if ( matdis == 0 ) { Amplu[m][0] = 100.0* (Amod + Amev); }
-					if ( matdis == 1 ) { Amplu[m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
+					if ( matdis == 0 ) { Amplu[minput][m][0] = 100.0* (Amod + Amev); }
+					if ( matdis == 1 ) { Amplu[minput][m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
 					//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 					}}}
 
@@ -823,7 +834,6 @@ next:
 				double betaoverk, cef_odod, cef_evod, cef_odev, cef_evev, Adash = Vradius;
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
 					fgets(trash, 65536, fp5);
-					int minput;
 					char MPDfilename[256];
 					char coupletype[128];
 					//! forループ  [OFFSET]
@@ -926,11 +936,11 @@ next:
 							}
 							printf("\n");
 						}
-						//! Almup
-
-
-
-						//! End of Almup
+						//! Almupに計算結果を代入
+						for (minput = 0; minput < Nvmode; minput++) {
+							for (m = 0; m < NLP; m++) {
+								Amplu[minput][m][0] = MPD2d[m][minput];	}
+						}
 						printf("\n");
 						for (minput = 0; minput < Nvmode; minput++) { printf("%d\t%lf\n", modemin[minput], Mbetain[minput]); }
 						printf("\n");
@@ -972,8 +982,8 @@ next:
 							Amev = Amev + Emev*Ein*dx*dy; Amod = Amod + Emod*Ein*dx*dy; }}
 							Amev = Amev*Amev / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
 							Amod =  Amod*Amod / (((2.0*omega*Mu0)/Mbeta[m])*(PI*w0*w0/2.0));
-						if ( matdis == 0 ) { Amplu[m][0] = 100.0* (Amod + Amev); }
-						if ( matdis == 1 ) { Amplu[m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
+						if ( matdis == 0 ) { Amplu[minput][m][0] = 100.0* (Amod + Amev); }
+						if ( matdis == 1 ) { Amplu[minput][m][0] = 100.0*( Amod + Amev )*OSin[ (int)((lamda -lpmin)/dlp) ]; }
 						//printf ("Amplu [%d][0] =%f\n", modem[m],Amplu [m][0] );
 						}}}*/
 				
@@ -1000,9 +1010,9 @@ next:
 
 			// This may be not adequate. for ( m = 0; m < NLP; m++ ) { A00 = A00 + Aplu[m][0]; } Aw00 = Aw00 + A00;
 			// Correction for the highest mode group ( elimination of power )
-			for ( m = 0; m < NLP; m++ ) { if ( modep[m] == Ptotal ) { Amplu[m][0] = 0.0; }}
+			for ( m = 0; m < NLP; m++ ) { if ( modep[m] == Ptotal ) { Amplu[minput][m][0] = 0.0; }}
 			// Total power of input impulse
-			for ( m = 0; m < NLP; m++ ) { A00 = A00 + Amplu[m][0]; } Aw00 = Aw00 + A00;
+			for ( m = 0; m < NLP; m++ ) { A00 = A00 + Amplu[minput][m][0]; } Aw00 = Aw00 + A00;
 
 			fprintf ( fp2, "Amplitude of input impulse,A00,%e,\n", A00 );
 			fprintf ( fp2, "Cumulative amplitude of input impulse,Aw00,%e,\n\n", Aw00 );
@@ -1021,7 +1031,7 @@ next:
 				fprintf ( fr3, "l," ); for ( m = 0; m < NLP; m++ ) { fprintf ( fr3, "%d,", model[m] ); } fprintf ( fr3, "\n" );
 				fprintf ( fr3, "p," ); for ( m = 0; m < NLP; m++ ) { fprintf ( fr3, "%d,", modep[m] ); } fprintf ( fr3, "\n" );
 				fprintf ( fr3, "%f,", 0.0 );
-				for ( m = 0; m < NLP; m++ ) { for ( n = 0; n <= Lmax; n++ ) { Pm[m] = Pm[m] + Amplu[m][n]; }
+				for ( m = 0; m < NLP; m++ ) { for ( n = 0; n <= Lmax; n++ ) { Pm[m] = Pm[m] + Amplu[minput][m][n]; }
 				fprintf ( fr3, "%f,", Pm[m] ); } fprintf ( fr3,"\n"); 
 				// モード群パワー分布 Pg
 				fprintf ( fr9, "," ); for ( j = 1; j <= Ptotal; j++ ) { fprintf ( fr9, "%d,", j ); } fprintf ( fr9, "\n" ); // モード群番号					
@@ -1061,13 +1071,13 @@ next:
 				/* タイムシフト演算 */
 				for ( m = 0; m < NLP; m++ ) {
 					for ( n = 0; n < kim[m]; n++ ) { Amin[m][n] = 0.0; }
-					for ( n = kim[m]; n <= Li; n++ ) { Amin[m][n] = Amplu[m][n - kim[m]]; }}
+					for ( n = kim[m]; n <= Li; n++ ) { Amin[m][n] = Amplu[minput][m][n - kim[m]]; }}
 #pragma omp for
 				/* カップリング演算 */
 				for ( m = 0; m < NLP; m++ ) {
 					for ( n = 0; n <= Li; n++ ) { me=0.0;
 					for ( l = 0; l < NLP; l++ ) { me = me + H[m][l]*Amin[l][n]; }
-					Amplu[m][n] = me; }}
+					Amplu[minput][m][n] = me; }}
 }
 
 				// ① 波長分散を考慮する場合
@@ -1076,20 +1086,20 @@ next:
 					// 各波長成分のインパルス応答（基準時間は非考慮）
 					if ( y == Nl/2 || fout == 1) { fprintf ( fr2, "%f,", (double)i*dz ); }
 					for ( n = 0; n <= Li; n++ ) { ap = 0.0;
-						for ( m = 0; m < NLP; m++ ) { ap = ap + Amplu[m][n]; }
+						for ( m = 0; m < NLP; m++ ) { ap = ap + Amplu[minput][m][n]; }
 						if ( y == Nl/2 || fout == 1) { fprintf ( fr2, "%f,", ap ); }}
 					if ( y == Nl/2 || fout == 1) { fprintf ( fr2,"\n" ); }
 					// 最小群遅延の波長依存性を考慮した足し合わせ（基準時間を考慮）
-					if ( y == 0 || nstd == 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[m][n]; }}; }
-					if ( y != 0 && nstd > 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n+nstd] = P[n+nstd] + Amplu[m][n]; }}; }
+					if ( y == 0 || nstd == 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[minput][m][n]; }}; }
+					if ( y != 0 && nstd > 0 ) { for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n+nstd] = P[n+nstd] + Amplu[minput][m][n]; }}; }
 					if ( y != 0 && nstd < 0 ) {
 						if ( nstd < nstdmin ) {
 							for ( n = 0; n <= Pnum[y-1] ; n++ ) { P[(Pnum[y-1]-n)+(nstdmin-nstd)] = P[(Pnum[y-1]-n)]; }
 							for ( n = 0; n < nstdmin-nstd; n++ ) { P[n] = 0.0; }
-							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[m][n]; }}}
+							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[minput][m][n]; }}}
 						else {
 							for ( n = 0; n <= Li; n++ ) { for ( m = 0; m < NLP; m++ ) {
-								P[n+(nstd-nstdmin)] = P[n+(nstd-nstdmin)] + Amplu[m][n]; }}; }};
+								P[n+(nstd-nstdmin)] = P[n+(nstd-nstdmin)] + Amplu[minput][m][n]; }}; }};
 					// for ( n = 0; n <= Pnum[y]; n++ ) { fprintf ( fs3,"%f,", P[n] ); } fprintf ( fs3,"\n" );
 				}
 
@@ -1101,7 +1111,7 @@ next:
 					if ( fout == 1 || y == Nl/2 ) { fprintf ( fr3, "%f,", (double)i*dz ); }
 					for ( m = 0; m < NLP; m++ ) {
 						Pm[m] = 0.0;
-						for ( n = 0; n <= Li; n++ ) { Pm[m] = Pm[m] + Amplu[m][n]; }
+						for ( n = 0; n <= Li; n++ ) { Pm[m] = Pm[m] + Amplu[minput][m][n]; }
 						if ( fout == 1 || y == Nl/2 ) { fprintf ( fr3, "%f,", Pm[m] ); }					
 						Pg[modep[m]-1] = Pg[modep[m]-1] + Pm[m]; }
 					if ( fout == 1 || y == Nl/2 ) { fprintf ( fr3,"\n"); }
@@ -1112,7 +1122,7 @@ next:
 					if ( fout == 1 || y == Nl/2) { fprintf ( fr2, "%f,", (double)i*dz ); }
 					for ( n = 0; n <= Li; n++ ) {
 						P[n] = 0.0;
-						for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[m][n]; }														
+						for ( m = 0; m < NLP; m++ ) { P[n] = P[n] + Amplu[minput][m][n]; }														
 						if ( fout == 1 || y == Nl/2 ) { fprintf ( fr2, "%f,", P[n] ); } }
 					if ( fout == 1 || y == Nl/2 ) { fprintf ( fr2,"\n" ); }										
 					/* 出力波形 */						 
@@ -1150,7 +1160,7 @@ next:
 
 			 free_dmatrix ( H, 0, NLP-1, 0, NLP-1 );
 			 free_dmatrix ( Amin, 0, NLP-1, 0, Lmax );
-			 free_dmatrix ( Amplu, 0, NLP-1, 0, Lmax );
+			 free_d3tensor ( Amplu, 0, Nvmode, 0, NLP-1, 0, Lmax );
 			 free_drealvector ( alpha, 0 );
 			 free_dintvector ( kim, 0 );
 			 free_drealvector ( Pm, 0 );
@@ -2098,6 +2108,50 @@ void init_dmatrix (double **a, int nr1, int nr2, int nl1, int nl2 ) {
 		for ( int j = nl1; j <= nl2; j++ ) { a[i][j] = 0.0; } }
 }
 
+/* A.24. float型2次元配列の解放 f3tensor(long nrl, long nrh, long ncl, long nch, long ndl, long ndh) */
+double ***d3tensor(long nrl, long nrh, long ncl, long nch, long ndl, long ndh)
+{
+	long i, j, nrow = nrh - nrl + 1, ncol = nch - ncl + 1, ndep = ndh - ndl + 1;
+	double ***t;
+	/* allocate pointers to pointers to rows */
+	t = (double ***)malloc((size_t)((nrow + NR_END) * sizeof(double**)));
+	//if (!t) nrerror("allocation failure 1 in f3tensor()");
+	t += NR_END;
+	t -= nrl;
+	/* allocate pointers to rows and set pointers to them */
+	t[nrl] = (double **)malloc((size_t)((nrow*ncol + NR_END) * sizeof(double*)));
+	//if (!t[nrl]) nrerror("allocation failure 2 in f3tensor()");
+	t[nrl] += NR_END;
+	t[nrl] -= ncl;
+	/* allocate rows and set pointers to them */
+	t[nrl][ncl] = (double *)malloc((size_t)((nrow*ncol*ndep + NR_END) * sizeof(double)));
+	//if (!t[nrl][ncl]) nrerror("allocation failure 3 in f3tensor()");
+	t[nrl][ncl] += NR_END;
+	t[nrl][ncl] -= ndl;
+	for (j = ncl + 1;j <= nch;j++) t[nrl][j] = t[nrl][j - 1] + ndep;
+	for (i = nrl + 1;i <= nrh;i++) {
+		t[i] = t[i - 1] + ncol;
+		t[i][ncl] = t[i - 1][ncl] + ncol * ndep;
+		for (j = ncl + 1;j <= nch;j++) t[i][j] = t[i][j - 1] + ndep;
+	}
+	/* return pointer to array of pointers to rows */
+	return t;
+}
+/* A.26. 実数行列初期化関数 init_d3tensor ( a, nr1, nr2, nl1, nl2, np1, np2 ) */
+void init_d3tensor(double ***a, int nr1, int nr2, int nl1, int nl2, int np1, int np2) {
+	for (int i1 = nr1; i1 <= nr2; i1++) {
+		for (int i2 = nl1; i2 <= nl2; i2++) { 
+			for(int i3 = np1; i3 <= np2; i3++) { a[i1][i2][i3] = 0.0; }
+}}}
+/* A.24. float型2次元配列の解放 f3tensor(long nrl, long nrh, long ncl, long nch, long ndl, long ndh) */
+void free_d3tensor(double ***t, long nrl, long nrh, long ncl, long nch,
+	long ndl, long ndh)
+	/* free a float f3tensor allocated by f3tensor() */
+{
+	free((FREE_ARG)(t[nrl][ncl] + ndl - NR_END));
+	free((FREE_ARG)(t[nrl] + ncl - NR_END));
+	free((FREE_ARG)(t + nrl - NR_END));
+}
 /* 畳み込み積分 convolution (n1, P1, n2, P2) */
 double* convolution ( int n1, double* P1, int n2, double* P2 ) {
 	int i, j;
