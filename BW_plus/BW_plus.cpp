@@ -315,6 +315,7 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	 dfp = dfp*1.0e-3; fpmin = fpmin*1.0e-3; fpmax = fpmax*1.0e-3; // 単位変換（THz）
 	 A = A*1.0e-6; dr = dr*1.0e-9; AA = AA *1.0e-6; // 単位変換（m）
 	 w0 = w0*1.0e-6; r0 = r0*1.0e-6, dx = dy = dx*1.0e-9, wvin = wvin * 1.0e-6; // 単位変換（m）
+	 V0 = V0*1.0e-6;
 	 Nxy = (int) ( 5.0*w0 / dx );//とりあえず4w0の範囲
 	 Dc = Dc*1.0e-9, Db = Db*1.0e-3, deps2 = deps2 *(Epsilon0)*(Epsilon0); // 単位変換（m），比誘電率を誘電率に変換
 	 fmin = fmin*1.0e-3; fmax = fmax*1.0e-3; df = ( fmax-fmin ) / (double) Nf;	// 単位変換（THz(1/ps)）
@@ -833,18 +834,18 @@ next:
 
 			if (launch == 2) {
 				FILE   *fp5, *fp8;			
-				char   trash[65536];
-				int    min, lin, i, j, Nxy, Nvin, nrr1, nrr2, OFFres, OFFrange;
+				char   trsh[65536], s1[32];
+				int    min, lin, i, j, Nxy, Nvin, nrr1, nrr2;
 				int    *modem, *modemin, *model, *modelin;
-				double k, A, n0, r0, dx, dy, aa, w, Rinxy, tauin, betain, Rinfin, eigin;
-				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod, Avin;
-				double *Mbeta, *Mbetain,    **Rlp, **MPD2d, **Rinlp;
-				double win, xx1, xx2, yy1, yy2, rr1, rr2;
+				double w, Rinxy, tauin, betain, Rinfin, eigin;
+				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod;
+				double *Mbeta, *Mbetain, **MPD2d, **Rinlp;
+				double win, xx1, xx2, yy1, yy2, rr1, rr2, drv;
 				double betaoverk, cef_odod, cef_evod, cef_odev, cef_evev, Adash = Vradius;
 				modemin = dintvector(0, 10 * Nwkb); init_intvector(modemin, 0, 10 * Nwkb);
 				modemin = dintvector(0, 10 * Nwkb); init_intvector(modemin, 0, 10 * Nwkb);
 				Mbetain = drealvector(0, 10 * Nwkb); init_realvector(Mbetain, 0, 10 * Nwkb);
-				Rinlp = dmatrix(0, (int)(2 * wvin / dr), 0, (int)(2 * wvin / dr));
+				Rinlp = dmatrix(0, (int)(3 * wvin / dr), 0, (int)(10 * wvin / dr));
 				init_dmatrix(Rinlp, 0, (int)(2 * wvin / dr), 0, (int)(2 * wvin / dr));
 				MPD2d = dmatrix(0, NLP, 0, NLP); init_dmatrix(MPD2d, 0, NLP, 0, NLP);
 				//q = drealvector(0, N); init_realvector(q, 0, N);
@@ -861,15 +862,20 @@ next:
 				model = dintvector(0, 10 * Nwkb); init_intvector(model, 0, 10 * Nwkb);
 				modelin = dintvector(0, 10 * Nwkb); init_intvector(modelin, 0, 10 * Nwkb);
 				Mbeta = drealvector(0, 10 * Nwkb); init_realvector(Mbeta, 0, 10 * Nwkb);
+				Nxy = (int)(3 * A / dx);
+				Nvin = (int)( 2 * V0 / dr);
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
-					fgets(trash, 65536, fp5);
+					for(int i = 0; i < 8; i++){
+						fscanf(fp5, "%[^,], ", trsh);}
+					fscanf(fp5, "%lf, ", &drv);		drv = drv*1.0e-6;
+					fgets(trsh, 65536, fp5);
 					char MPDfilename[256];
 					char coupletype[128];
 					//! forループ  [OFFSET]
 					//for (int ii = 0; ii <= OFFrange / OFFres + 1; ii++) {
-						fscanf(fp5, "%s", trash);		//!? fp5に関するfscanfは波長ループの外にするかメイン関数内に入れるかしたい
 						double E2m_evin, E2m_ev;
 						//! forループ  [MODE NUMBER]
+						printf("[m, l]\n");
 						for (minput = 0; minput < Nvmode; minput++) {
 							
 							fscanf(fp5, "%d, %d, %lf, %lf, %lf, %lf, %lf,", &min, &lin, &tauin, &betain, &betaoverk, &Rinfin, &eigin);
@@ -877,30 +883,30 @@ next:
 							modelin[minput] = lin;
 							Mbetain[minput] = betain;
 							
-							printf("%d\t%d\n", modemin[minput], modelin[minput]);
-							if (couple == 0) { Adash = wvin; }		if (couple == 1) { Adash = A; }
+							printf("(%d, %d)\t", modemin[minput], modelin[minput]);
+							if (couple == 0) { Adash = V0; }		if (couple == 1) { Adash = A; }
 
-							for (j = 0; j <= (int)(Adash / dr); j++) {
-								fscanf(fp5, "%lf,", &Rinlp[minput][j]);				}
-							fscanf(fp5, "%lf\n", &Rinlp[minput][j]); 
+							for (j = 0; j <= (int)(V0 / drv); j++) {
+								fscanf(fp5, "%lf,", &Rinlp[minput][j]);		}
+							fgets(s1, 32, fp5);		//printf("%s\n", trsh);
+							//printf("\n");			//printf("%s", s1);
 							for (m = 0; m < NLP; m++) {
 								Am_evev = 0.0;		Am_evod = 0.0;
 								Am_odev = 0.0;		Am_odod = 0.0;
 								E2m_evin = 0.0;		E2m_ev = 0.0;
 								Rinxy = 0.0;
 
-								//! Nxy!!!!!!!!!!!!!!!!!
 								for (i = 0; i < Nxy; i++) {
-									xx1 = (Vradius / Avin) * ((-(double)Nxy * dx / 2.0) + ((double)i * dx));
+									xx1 = (V0 / wvin) * ((-(double)Nxy * dx / 2.0) + ((double)i * dx));
 									if (launch == 2) {
 										xx2 = (r0 - (double)Nxy * dx / 2.0) + ((double)i * dx);
 									}
 									for (j = 0; j < Nxy; j++) {
-										yy1 = (Vradius / Avin) * (-(double)Nxy * dx / 2.0) + ((double)j* dy);
+										yy1 = (V0 / wvin) * (-(double)Nxy * dx / 2.0) + ((double)j* dy);
 										yy2 = (-(double)Nxy * dx / 2.0) + ((double)j * dy);
 										rr1 = sqrt(xx1 * xx1 + yy1 * yy1);
 										rr2 = sqrt(xx2 * xx2 + yy2 * yy2);
-										nrr1 = (int)(rr1 / dr);
+										nrr1 = (int)(rr1 / drv);
 										nrr2 = (int)(rr2 / dr);
 										//   ここは入射するレーザ（ファイバ）の，xy平面上の2次元強度分布を計算    
 										if (nrr1 == 0) {		// 以下の配列Rinxyは，メモリ内の配列Rlpを使うので読み込みはHDDを介すより速い
@@ -910,9 +916,9 @@ next:
 											Rinxy = Rinlp[minput][nrr1] + (Rinlp[minput][nrr1 + 1] - Rinlp[minput][nrr1]) * ((rr1 - (double)nrr1 * dr) / dr);
 										}
 										else if (nrr1 > Nvin) {
-											//printf("%d, %lf, %d, %lf\n", minput, Mbetain[minput], Nvin, Avin);
+											//printf("%d, %lf, %d, %lf\n", minput, Mbetain[minput], Nvin, wvin);
 											win = aa * sqrt(Mbetain[minput] * Mbetain[minput] - k * k * n0 * n0);
-											Rinxy = Rinlp[minput][Nvin] * (bessk(modemin[minput], win * rr1) / bessk(modemin[minput], win * Avin));
+											Rinxy = Rinlp[minput][Nvin] * (bessk(modemin[minput], win * rr1) / bessk(modemin[minput], win * wvin));
 										}
 										//   ここは受け手側のファイバにおける，xy平面上の2次元強度分布を計算				/// 以下の配列Rinxyは，メモリ内の配列Rlpを使うので読み込みはHDDを介すより速い
 										if (nrr2 == 0) {
@@ -992,7 +998,6 @@ next:
 							}
 							fclose(fp8);
 						}
-						if (launch == 2) break;
 					//}
 				}
 
@@ -1461,7 +1466,7 @@ void inputFEM() {
 	int    *modem, *model, *modelin;
 	int    Nvin, couple;
 	int    OFFres, OFFrange;
-	char   trash[65536] = "\0";
+	char   trsh[65536] = "\0";
 	char   directory[128] = "FILE_for_IO";
 	mkdir(directory);
 	/** 1. 入力ファイルの読み込み **/
@@ -1505,7 +1510,7 @@ void inputFEM() {
 
 
 	N = (int)(1000.0*A / dr); Nclad = (int)(1000.0*(AA - A) / dr);				//-----------Ncladに注意
-	Nvin = (int)(1000.0*Avin / dr);
+	//Nvin = (int)(1000.0*Avin / dr);
 
 
 	fmin = fmin * 1.0e-3; fmax = fmax * 1.0e-3; dfrq = (fmax - fmin) / (double)Nf;
