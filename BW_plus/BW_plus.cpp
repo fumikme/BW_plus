@@ -666,6 +666,7 @@ next:
 			printf ( "Total numbers of all modes Ntotal: %d\n", Ntotal); 
 			printf ( "Total numbers of all mode groups Ptotal: %d\n", Ptotal); 
 
+
 			//! ///////////////////////////////////////////////////////////////
 			//! //////////           3. LPÉÇÅ[Éhì¡ê´ÇÃêÆóù              ///////////
 			//! ///////////////////////////////////////////////////////////////
