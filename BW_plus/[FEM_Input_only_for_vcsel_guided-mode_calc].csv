@@ -11,7 +11,7 @@ Range for offset,OFFrange,20
 Resolution for offset,OFFres,1
 Input beam radius from VCSEL (um),Avin,10
 Gaussian Beam radius (É m) for the case of launch == 1,w0,1
-Spatial step size (nm),dr,20
+Spatial step size (nm),drint,20
 Overlap integral step size (nm),dx,100
 Material (0:PMMA 1:CYTOP 2:Silica 3:PTCEMA),mater,1
 Wavelength (nm),lamda,850

@@ -222,19 +222,19 @@ int main ( void ) {
 double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, double Vradius){
 	//! //////////  宣言  //////////
 	FILE  *fp,*fp2, *fp3, *fp4, *fq, *fr, *fr2, *fr3, *fr4, *fr5,*fr6, *fr7, *fr8, *fr9, *fr10, *fs, *fs2, *fs3, *fs4, *fdebug;
-	int    i, j, l, m, n, y, nr, jmax, count = 0;
+	int    i, j, l, m, n, y, nr, jmax, profile, couple, count = 0;
 	int    mater, Nl, N, Nclad, Nbeta, NLP, NLP0, Ntotal, Nwkb, Ptotal, myu, nyu, nstd, nstdmin, nstdmax, mm;
 	int    Nz, Nzout, Nf, Nfp, Ti, Li, Lmax, nmax, wo, gi, fout, matdis, scc, nP, Mn, launch, Nxy, Nom;
 	double lamda, lamda0, lamdamin, lamdamax, lpmin, lpmax, dlp,  dl, k, omega,  A, AA, g, n0, n1, dr;
 	double delta, NA, aa, v, w, D, w0, r0, dx, dy, xx, yy, rr, Rxy, Ein, Emev, Emod, Amev, Amod, r0dash;
-	double tau, beta, dbeta, bb, eps1, eps2, sum, sumcore, sumclad, Rinf, dd, ds, eig;
+	double tau, beta, dbeta, bb, eps1, eps2, sum, sumcore, sumclad, Rinf, dd, ds, eig, wvin;
 	double deps2, Dc, sigma2, Db, dbmn, E_over,  hmn;
 	double zmax, zout, dz, Tv, Hmmmin, Hrowsum, tauminstd, nctaumax, taumax, taumin = 0;
 	double fmin, fmax, df, fpmin, fpmax, dfp, A00, Aw00, Hw, ReHw, ImHw, me, bw, tav, rms, Ptot, ap, spct, Cpsum;
 	double *GI, *GC, *q, *q2, *R, *R2, *Rb, *a, *b, *ML, *MD, **Rlp, *Mtau, *Mbeta;
 	double **H, *alpha, *P, *Pm, *Pg, *M, *Cp, *Pin, *Pout, *GIND, *OSin, *Wl, * WDin;
 	int    *model, *modem,*modep, *pdeg, *kim, *Pnum;
-	double V0, nv0, nv1, gsingle;	gsingle = 0;
+	double V0, nv0, nv1, drint, dxover, gsingle;	gsingle = 0;
 	double dtrsh;
 	double **OSmat;
 	double ***Amin, ***Amplu;
@@ -260,6 +260,7 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &r0dash);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dx );
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &w0 );		
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &wvin );	
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);
 		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &matdis );
@@ -290,7 +291,11 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &V0);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &nv0);
 		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &nv1);	
-		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);	}
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dtrsh);	
+		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &profile );
+		 fscanf ( fp, "%[^,], %[^,], %d\n", s1, s2, &couple ); 
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &drint);
+		 fscanf ( fp, "%[^,], %[^,], %lf\n", s1, s2, &dxover);}
 	 else { printf (" U cannot open the file !\n"); exit ( EXIT_FAILURE ); }
 	fclose(fp);
 
@@ -309,7 +314,7 @@ double sweep_g(int SingleSweep, double ginput, int Nvmode, int DMD, double r, do
 	 lpmin = lpmin*1.0e-9, lpmax = lpmax*1.0e-9, dlp = dlp*1.0e-9; // 単位変換（m）
 	 dfp = dfp*1.0e-3; fpmin = fpmin*1.0e-3; fpmax = fpmax*1.0e-3; // 単位変換（THz）
 	 A = A*1.0e-6; dr = dr*1.0e-9; AA = AA *1.0e-6; // 単位変換（m）
-	 w0 = w0*1.0e-6; r0 = r0*1.0e-6, dx = dy = dx*1.0e-9; // 単位変換（m）
+	 w0 = w0*1.0e-6; r0 = r0*1.0e-6, dx = dy = dx*1.0e-9, wvin = wvin * 1.0e-6; // 単位変換（m）
 	 Nxy = (int) ( 5.0*w0 / dx );//とりあえず4w0の範囲
 	 Dc = Dc*1.0e-9, Db = Db*1.0e-3, deps2 = deps2 *(Epsilon0)*(Epsilon0); // 単位変換（m），比誘電率を誘電率に変換
 	 fmin = fmin*1.0e-3; fmax = fmax*1.0e-3; df = ( fmax-fmin ) / (double) Nf;	// 単位変換（THz(1/ps)）
@@ -829,13 +834,33 @@ next:
 			if (launch == 2) {
 				FILE   *fp5, *fp8;			
 				char   trash[65536];
-				int    min, lin, i, j, Nxy, Nvin, couple, nrr1, nrr2, OFFres, OFFrange;
+				int    min, lin, i, j, Nxy, Nvin, nrr1, nrr2, OFFres, OFFrange;
 				int    *modem, *modemin, *model, *modelin;
-				double k, A, n0, dr, r0, dx, dy, aa, w, Rinxy, tauin, betain, Rinfin, eigin;
+				double k, A, n0, r0, dx, dy, aa, w, Rinxy, tauin, betain, Rinfin, eigin;
 				double Em_evin, Em_odin, Em_ev, Em_od, Am_evev, Am_evod, Am_odev, Am_odod, Avin;
 				double *Mbeta, *Mbetain,    **Rlp, **MPD2d, **Rinlp;
 				double win, xx1, xx2, yy1, yy2, rr1, rr2;
 				double betaoverk, cef_odod, cef_evod, cef_odev, cef_evev, Adash = Vradius;
+				modemin = dintvector(0, 10 * Nwkb); init_intvector(modemin, 0, 10 * Nwkb);
+				modemin = dintvector(0, 10 * Nwkb); init_intvector(modemin, 0, 10 * Nwkb);
+				Mbetain = drealvector(0, 10 * Nwkb); init_realvector(Mbetain, 0, 10 * Nwkb);
+				Rinlp = dmatrix(0, (int)(2 * wvin / dr), 0, (int)(2 * wvin / dr));
+				init_dmatrix(Rinlp, 0, (int)(2 * wvin / dr), 0, (int)(2 * wvin / dr));
+				MPD2d = dmatrix(0, NLP, 0, NLP); init_dmatrix(MPD2d, 0, NLP, 0, NLP);
+				//q = drealvector(0, N); init_realvector(q, 0, N);
+				//R = drealvector(0, N); init_realvector(R, 0, N);
+				//R2 = drealvector(0, N); init_realvector(R2, 0, N);
+				//Rb = drealvector(0, N); init_realvector(Rb, 0, N);
+				//a = drealvector(0, N); init_realvector(a, 0, N);
+				//b = drealvector(0, N); init_realvector(b, 0, N);
+				//ML = drealvector(0, N); init_realvector(ML, 0, N);
+				//MD = drealvector(0, N); init_realvector(MD, 0, N);
+				//M = drealvector(0, Nf); init_realvector(M, 0, Nf);
+				//Mtau = drealvector(0, 10 * Nwkb); init_realvector(Mtau, 0, 10 * Nwkb);
+				modem = dintvector(0, 10 * Nwkb); init_intvector(modem, 0, 10 * Nwkb);
+				model = dintvector(0, 10 * Nwkb); init_intvector(model, 0, 10 * Nwkb);
+				modelin = dintvector(0, 10 * Nwkb); init_intvector(modelin, 0, 10 * Nwkb);
+				Mbeta = drealvector(0, 10 * Nwkb); init_realvector(Mbeta, 0, 10 * Nwkb);
 				if ((fp5 = fopen("[VCSEL_intensity_profile].csv", "r")) != NULL) {		//		VCSEL のLPモードの1次元強度分布ファイルを開く
 					fgets(trash, 65536, fp5);
 					char MPDfilename[256];
@@ -853,7 +878,7 @@ next:
 							Mbetain[minput] = betain;
 							
 							printf("%d\t%d\n", modemin[minput], modelin[minput]);
-							if (couple == 0) { Adash = Avin; }		if (couple == 1) { Adash = A; }
+							if (couple == 0) { Adash = wvin; }		if (couple == 1) { Adash = A; }
 
 							for (j = 0; j <= (int)(Adash / dr); j++) {
 								fscanf(fp5, "%lf,", &Rinlp[minput][j]);				}
@@ -864,6 +889,7 @@ next:
 								E2m_evin = 0.0;		E2m_ev = 0.0;
 								Rinxy = 0.0;
 
+								//! Nxy!!!!!!!!!!!!!!!!!
 								for (i = 0; i < Nxy; i++) {
 									xx1 = (Vradius / Avin) * ((-(double)Nxy * dx / 2.0) + ((double)i * dx));
 									if (launch == 2) {
@@ -1439,7 +1465,7 @@ void inputFEM() {
 	char   directory[128] = "FILE_for_IO";
 	mkdir(directory);
 	/** 1. 入力ファイルの読み込み **/
-	if ((fp = fopen("[FEM_Input_vcsel_guided-mode_calc].csv", "r")) != NULL) {
+	if ((fp = fopen("[FEM_Input_only_for_vcsel_guided-mode_calc].csv", "r")) != NULL) {
 		char s1[256], s2[256];
 		fscanf(fp, "%[^,], %[^,], %lf\n", s1, s2, &A);
 		fscanf(fp, "%[^,], %[^,], %lf\n", s1, s2, &AA);
@@ -1873,9 +1899,16 @@ double bessk (int n,double x)
 }
 
 /*A.2. 屈折率波長微分関数dndl_var (lamda, n_lamda, mater) */
-double dndl ( double lamda, double n_lamda, int mater )
-//{ return ( ( 0.01925e-4*lamda - 16.31619e-4 )*n_lamda + ( -0.02743e-4*lamda + 23.16674e-4 ) )*1.0e9; }
-{ return ( ( 0.02173e-4*lamda - 18.79107e-4 )*n_lamda + ( -0.03109e-4*lamda + 26.85035e-4 ) )*1.0e9; } // 640 ~ 690 nm
+double dndl ( double lamda, double n_lamda, int mater ){
+	if (mater == 0) // PMMA
+		return ((0.02173e-4*lamda - 18.79107e-4)*n_lamda + (-0.03109e-4*lamda + 26.85035e-4))*1.0e9;
+	else if (mater == 1) // CYTOP
+		return ((0.02383e-5*lamda - 25.34898e-5)*n_lamda + (-0.02983e-5*lamda + 31.46375e-5))*1.0e9;
+	else if (mater == 2) //Silica
+		return ((0.02817e-5*lamda - 29.61218e-5)*n_lamda + (-0.03807e-5*lamda + 39.02595e-5))*1.0e9;
+	else if (mater == 3) //PTCEMA
+		return ((0.0076424e-4*lamda - 7.92635e-4)*n_lamda + (-0.0107534e-4*lamda + 11.10000e-4))*1.0e9;
+	else printf(" Material number is not correct !\n"); exit(EXIT_FAILURE);					}
 
 /*A.3. 屈折率濃度微分関数dndl_var (lamda, mater) */ 
 double dndc ( double lamda, int mater )
