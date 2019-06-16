@@ -384,8 +384,8 @@ Maximum group delay per unit length,taumax,5.011565e+03,ps/m
 Total time steps,Lmax,426
 Maximum time step,nmax,428
 Net total time steps,Pnum,517
-Amplitude of input impulse,A00,6.000000e+01,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Amplitude of input impulse,A00,8.694753e+00,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=853.000000 nm
 Minimum group delay per unit length,taumin,5.007331e+03,ps/m
@@ -394,7 +394,7 @@ Total time steps,Lmax,426
 Maximum time step,nmax,428
 Net total time steps,Pnum,519
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.950000 nm
 Minimum group delay per unit length,taumin,5.007354e+03,ps/m
@@ -403,7 +403,7 @@ Total time steps,Lmax,426
 Maximum time step,nmax,428
 Net total time steps,Pnum,521
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.900000 nm
 Minimum group delay per unit length,taumin,5.007377e+03,ps/m
@@ -412,7 +412,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,524
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.850000 nm
 Minimum group delay per unit length,taumin,5.007400e+03,ps/m
@@ -421,7 +421,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,526
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.800000 nm
 Minimum group delay per unit length,taumin,5.007423e+03,ps/m
@@ -430,7 +430,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,528
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.750000 nm
 Minimum group delay per unit length,taumin,5.007446e+03,ps/m
@@ -439,7 +439,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,530
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,6.000000e+01,
+Cumulative amplitude of input impulse,Aw00,8.694753e+00,
 
 lamda=852.700000 nm
 Minimum group delay per unit length,taumin,5.007468e+03,ps/m
@@ -447,8 +447,8 @@ Maximum group delay per unit length,taumax,5.011721e+03,ps/m
 Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,533
-Amplitude of input impulse,A00,6.000000e+01,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Amplitude of input impulse,A00,8.697686e+00,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.650000 nm
 Minimum group delay per unit length,taumin,5.007491e+03,ps/m
@@ -457,7 +457,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,535
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.600000 nm
 Minimum group delay per unit length,taumin,5.007514e+03,ps/m
@@ -466,7 +466,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,537
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.550000 nm
 Minimum group delay per unit length,taumin,5.007537e+03,ps/m
@@ -475,7 +475,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,540
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.500000 nm
 Minimum group delay per unit length,taumin,5.007560e+03,ps/m
@@ -484,7 +484,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,542
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.450000 nm
 Minimum group delay per unit length,taumin,5.007582e+03,ps/m
@@ -493,7 +493,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,544
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.400000 nm
 Minimum group delay per unit length,taumin,5.007605e+03,ps/m
@@ -502,7 +502,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,546
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,1.200000e+02,
+Cumulative amplitude of input impulse,Aw00,1.739244e+01,
 
 lamda=852.350000 nm
 Minimum group delay per unit length,taumin,5.007628e+03,ps/m
@@ -510,8 +510,8 @@ Maximum group delay per unit length,taumax,5.011876e+03,ps/m
 Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,549
-Amplitude of input impulse,A00,6.000000e+01,
-Cumulative amplitude of input impulse,Aw00,1.800000e+02,
+Amplitude of input impulse,A00,8.700620e+00,
+Cumulative amplitude of input impulse,Aw00,2.609306e+01,
 
 lamda=852.300000 nm
 Minimum group delay per unit length,taumin,5.007651e+03,ps/m
@@ -519,8 +519,8 @@ Maximum group delay per unit length,taumax,5.011899e+03,ps/m
 Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,551
-Amplitude of input impulse,A00,6.000000e+01,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Amplitude of input impulse,A00,8.700705e+00,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.250000 nm
 Minimum group delay per unit length,taumin,5.007674e+03,ps/m
@@ -529,7 +529,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,553
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.200000 nm
 Minimum group delay per unit length,taumin,5.007696e+03,ps/m
@@ -538,7 +538,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,555
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.150000 nm
 Minimum group delay per unit length,taumin,5.007719e+03,ps/m
@@ -547,7 +547,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,558
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.100000 nm
 Minimum group delay per unit length,taumin,5.007742e+03,ps/m
@@ -556,7 +556,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,560
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.050000 nm
 Minimum group delay per unit length,taumin,5.007765e+03,ps/m
@@ -565,7 +565,7 @@ Total time steps,Lmax,425
 Maximum time step,nmax,428
 Net total time steps,Pnum,562
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=852.000000 nm
 Minimum group delay per unit length,taumin,5.007788e+03,ps/m
@@ -574,7 +574,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,565
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.950000 nm
 Minimum group delay per unit length,taumin,5.007811e+03,ps/m
@@ -583,7 +583,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,567
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.900000 nm
 Minimum group delay per unit length,taumin,5.007833e+03,ps/m
@@ -592,7 +592,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,569
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.850000 nm
 Minimum group delay per unit length,taumin,5.007856e+03,ps/m
@@ -601,7 +601,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,571
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.800000 nm
 Minimum group delay per unit length,taumin,5.007879e+03,ps/m
@@ -610,7 +610,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,574
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.750000 nm
 Minimum group delay per unit length,taumin,5.007902e+03,ps/m
@@ -619,7 +619,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,576
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.700000 nm
 Minimum group delay per unit length,taumin,5.007924e+03,ps/m
@@ -628,7 +628,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,578
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,2.400000e+02,
+Cumulative amplitude of input impulse,Aw00,3.479376e+01,
 
 lamda=851.650000 nm
 Minimum group delay per unit length,taumin,5.007947e+03,ps/m
@@ -636,8 +636,8 @@ Maximum group delay per unit length,taumax,5.012187e+03,ps/m
 Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,581
-Amplitude of input impulse,A00,6.000000e+01,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Amplitude of input impulse,A00,8.705908e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.600000 nm
 Minimum group delay per unit length,taumin,5.007970e+03,ps/m
@@ -646,7 +646,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,583
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.550000 nm
 Minimum group delay per unit length,taumin,5.007993e+03,ps/m
@@ -655,7 +655,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,585
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.500000 nm
 Minimum group delay per unit length,taumin,5.008016e+03,ps/m
@@ -664,7 +664,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,587
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.450000 nm
 Minimum group delay per unit length,taumin,5.008038e+03,ps/m
@@ -673,7 +673,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,590
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.400000 nm
 Minimum group delay per unit length,taumin,5.008061e+03,ps/m
@@ -682,7 +682,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,592
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.350000 nm
 Minimum group delay per unit length,taumin,5.008084e+03,ps/m
@@ -691,7 +691,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,594
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.300000 nm
 Minimum group delay per unit length,taumin,5.008107e+03,ps/m
@@ -700,7 +700,7 @@ Total time steps,Lmax,424
 Maximum time step,nmax,428
 Net total time steps,Pnum,597
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.250000 nm
 Minimum group delay per unit length,taumin,5.008130e+03,ps/m
@@ -709,7 +709,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,599
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.200000 nm
 Minimum group delay per unit length,taumin,5.008152e+03,ps/m
@@ -718,7 +718,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,601
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.150000 nm
 Minimum group delay per unit length,taumin,5.008175e+03,ps/m
@@ -727,7 +727,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,603
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.100000 nm
 Minimum group delay per unit length,taumin,5.008198e+03,ps/m
@@ -736,7 +736,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,606
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.050000 nm
 Minimum group delay per unit length,taumin,5.008220e+03,ps/m
@@ -745,7 +745,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,608
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=851.000000 nm
 Minimum group delay per unit length,taumin,5.008243e+03,ps/m
@@ -754,7 +754,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,610
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.950000 nm
 Minimum group delay per unit length,taumin,5.008266e+03,ps/m
@@ -763,7 +763,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,612
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.900000 nm
 Minimum group delay per unit length,taumin,5.008289e+03,ps/m
@@ -772,7 +772,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,615
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.850000 nm
 Minimum group delay per unit length,taumin,5.008312e+03,ps/m
@@ -781,7 +781,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,617
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.800000 nm
 Minimum group delay per unit length,taumin,5.008335e+03,ps/m
@@ -790,7 +790,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,619
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.750000 nm
 Minimum group delay per unit length,taumin,5.008357e+03,ps/m
@@ -799,7 +799,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,622
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.700000 nm
 Minimum group delay per unit length,taumin,5.008380e+03,ps/m
@@ -808,7 +808,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,624
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.650000 nm
 Minimum group delay per unit length,taumin,5.008403e+03,ps/m
@@ -817,7 +817,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,626
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.600000 nm
 Minimum group delay per unit length,taumin,5.008425e+03,ps/m
@@ -826,7 +826,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,628
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.550000 nm
 Minimum group delay per unit length,taumin,5.008448e+03,ps/m
@@ -835,7 +835,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,631
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.500000 nm
 Minimum group delay per unit length,taumin,5.008471e+03,ps/m
@@ -844,7 +844,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,633
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.450000 nm
 Minimum group delay per unit length,taumin,5.008494e+03,ps/m
@@ -853,7 +853,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,635
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.400000 nm
 Minimum group delay per unit length,taumin,5.008516e+03,ps/m
@@ -862,7 +862,7 @@ Total time steps,Lmax,423
 Maximum time step,nmax,428
 Net total time steps,Pnum,637
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.350000 nm
 Minimum group delay per unit length,taumin,5.008539e+03,ps/m
@@ -871,7 +871,7 @@ Total time steps,Lmax,422
 Maximum time step,nmax,428
 Net total time steps,Pnum,640
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.300000 nm
 Minimum group delay per unit length,taumin,5.008562e+03,ps/m
@@ -880,7 +880,7 @@ Total time steps,Lmax,422
 Maximum time step,nmax,428
 Net total time steps,Pnum,642
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00,3.000000e+02,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
 
 lamda=850.250000 nm
 Minimum group delay per unit length,taumin,5.008585e+03,ps/m
@@ -889,4 +889,50 @@ Total time steps,Lmax,422
 Maximum time step,nmax,428
 Net total time steps,Pnum,644
 Amplitude of input impulse,A00,0.000000e+00,
-Cumulative amplitude of input impulse,Aw00
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+
+lamda=850.200000 nm
+Minimum group delay per unit length,taumin,5.008607e+03,ps/m
+Maximum group delay per unit length,taumax,5.012830e+03,ps/m
+Total time steps,Lmax,422
+Maximum time step,nmax,428
+Net total time steps,Pnum,647
+Amplitude of input impulse,A00,0.000000e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+
+lamda=850.150000 nm
+Minimum group delay per unit length,taumin,5.008630e+03,ps/m
+Maximum group delay per unit length,taumax,5.012852e+03,ps/m
+Total time steps,Lmax,422
+Maximum time step,nmax,428
+Net total time steps,Pnum,649
+Amplitude of input impulse,A00,0.000000e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+
+lamda=850.100000 nm
+Minimum group delay per unit length,taumin,5.008653e+03,ps/m
+Maximum group delay per unit length,taumax,5.012875e+03,ps/m
+Total time steps,Lmax,422
+Maximum time step,nmax,428
+Net total time steps,Pnum,651
+Amplitude of input impulse,A00,0.000000e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+
+lamda=850.050000 nm
+Minimum group delay per unit length,taumin,5.008676e+03,ps/m
+Maximum group delay per unit length,taumax,5.012897e+03,ps/m
+Total time steps,Lmax,422
+Maximum time step,nmax,428
+Net total time steps,Pnum,653
+Amplitude of input impulse,A00,0.000000e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+
+lamda=850.000000 nm
+Minimum group delay per unit length,taumin,5.008699e+03,ps/m
+Maximum group delay per unit length,taumax,5.012919e+03,ps/m
+Total time steps,Lmax,422
+Maximum time step,nmax,428
+Net total time steps,Pnum,656
+Amplitude of input impulse,A00,0.000000e+00,
+Cumulative amplitude of input impulse,Aw00,4.349967e+01,
+

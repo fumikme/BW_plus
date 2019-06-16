@@ -1059,6 +1059,7 @@ next:
 			//! ////////////////////////////////////////////////////////
 			/****************************************************************************************/
 			printf("start!\n");
+			if(launch ==0 || launch==1){ Nvmode=1;}
 			minput = 0;
 			for ( i = 1; i <= Nz; i++ ) // z(i-1) ~ zi
 			{
@@ -1071,25 +1072,29 @@ next:
 				for ( m = 0; m < NLP; m++ ) {
 					kim[m] = (int) ( (( Mtau[m] - taumin )*( (double)i*dz ) / Tv ) + 0.5 )
 					              - (int) ( (( Mtau[m] - taumin )*( (double)(i-1)*dz ) / Tv ) + 0.5 );
-					fprintf(fdebug, "%d, ", kim[m]);}	fprintf(fdebug, "\n");
+					fprintf(fdebug, "%d, ", kim[m]);}	
+				fprintf(fdebug, "\n");
 
 #pragma omp parallel
 {
 #pragma omp for
 				/* タイムシフト演算 */
-				for ( m = 0; m < NLP; m++ ) {
-					for ( n = 0; n < kim[m]; n++ ) { Amin[minput][m][n] = 0.0; }
-					for ( n = kim[m]; n <= Li; n++ ) { Amin[minput][m][n] = Amplu[minput][m][n - kim[m]]; }}
+				for (minput=0; minput<Nvmode; minput++){
+					for ( m = 0; m < NLP; m++ ) {
+						for ( n = 0; n < kim[m]; n++ ) { Amin[minput][m][n] = 0.0; }
+						for ( n = kim[m]; n <= Li; n++ ) { Amin[minput][m][n] = Amplu[minput][m][n - kim[m]]; }}}
 #pragma omp for
 				/* カップリング演算 */
-				for ( m = 0; m < NLP; m++ ) {
-					for ( n = 0; n <= Li; n++ ) { me=0.0;
-					for ( l = 0; l < NLP; l++ ) { me = me + H[m][l]*Amin[minput][l][n]; }
-					Amplu[minput][m][n] = me; }}
+				for (minput = 0; minput < Nvmode; minput++) {					
+					for ( m = 0; m < NLP; m++ ) {
+						for ( n = 0; n <= Li; n++ ) { me=0.0;
+						for ( l = 0; l < NLP; l++ ) { me = me + H[m][l]*Amin[minput][l][n]; }
+						Amplu[minput][m][n] = me; }}}
 }
 
 				// ① 波長分散を考慮する場合
 				/* 時間波形の重ね合わせ */
+				minput = 0;
 				if ( matdis == 1 && i == Nz ) {
 					// 各波長成分のインパルス応答（基準時間は非考慮）
 					if ( y == Nl/2 || fout == 1) { fprintf ( fr2, "%f,", (double)i*dz ); }
